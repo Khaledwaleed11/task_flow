@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/task_entity.dart';
 import '../../domain/usecases/create_task.dart';
 import '../../domain/usecases/delete_task.dart';
+import '../../domain/usecases/get_assigned_tasks.dart';
 import '../../domain/usecases/get_tasks.dart';
 import '../../domain/usecases/toggle_task_completion.dart';
 import '../../domain/usecases/update_task.dart';
+import '../../domain/usecases/watch_all_tasks.dart';
+import '../../domain/usecases/watch_tasks.dart';
 
 enum TaskStatus { initial, loading, loaded, failure }
 
@@ -14,37 +19,32 @@ enum TaskActionStatus { idle, loading, success, failure }
 class TaskProvider extends ChangeNotifier {
   final CreateTask createTaskUseCase;
   final GetTasks getTasksUseCase;
+  final GetAssignedTasks getAssignedTasksUseCase;
   final UpdateTask updateTaskUseCase;
   final DeleteTask deleteTaskUseCase;
   final ToggleTaskCompletion toggleTaskCompletionUseCase;
+  final WatchTasks watchTasksUseCase;
+  final WatchAllTasks? watchAllTasksUseCase;
+
+  StreamSubscription? _tasksSubscription;
 
   TaskProvider({
     required this.createTaskUseCase,
     required this.getTasksUseCase,
+    required this.getAssignedTasksUseCase,
     required this.updateTaskUseCase,
     required this.deleteTaskUseCase,
     required this.toggleTaskCompletionUseCase,
+    required this.watchTasksUseCase,
+    this.watchAllTasksUseCase,
   });
 
-  // =========================
-  // State
-  // =========================
-
   TaskStatus _status = TaskStatus.initial;
-
   TaskActionStatus _actionStatus = TaskActionStatus.idle;
-
   List<TaskEntity> _tasks = [];
-
   String? _errorMessage;
-
   String? _actionErrorMessage;
-
   String? _actionTaskId;
-
-  // =========================
-  // Getters
-  // =========================
 
   TaskStatus get status => _status;
 
@@ -72,14 +72,9 @@ class TaskProvider extends ChangeNotifier {
     return _tasks.where((task) => !task.isCompleted).length;
   }
 
-  // =========================
-  // Get Tasks
-  // =========================
-
   Future<void> getTasks({required String projectId}) async {
     _status = TaskStatus.loading;
     _errorMessage = null;
-
     notifyListeners();
 
     final result = await getTasksUseCase(GetTasksParams(projectId: projectId));
@@ -88,28 +83,124 @@ class TaskProvider extends ChangeNotifier {
       (failure) {
         _status = TaskStatus.failure;
         _errorMessage = failure.message;
-
         notifyListeners();
       },
       (tasks) {
         _tasks = tasks;
         _status = TaskStatus.loaded;
         _errorMessage = null;
-
         notifyListeners();
       },
     );
   }
 
-  // =========================
-  // Create Task
-  // =========================
+  void watchTasks({required String projectId}) {
+    _tasksSubscription?.cancel();
+
+    _status = TaskStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    _tasksSubscription =
+        watchTasksUseCase(WatchTasksParams(projectId: projectId)).listen(
+          (result) {
+            result.fold(
+              (failure) {
+                _status = TaskStatus.failure;
+                _errorMessage = failure.message;
+                notifyListeners();
+              },
+              (tasks) {
+                _tasks = tasks;
+                _status = TaskStatus.loaded;
+                _errorMessage = null;
+                notifyListeners();
+              },
+            );
+          },
+          onError: (_) {
+            _status = TaskStatus.failure;
+            _errorMessage = 'Failed to watch tasks.';
+            notifyListeners();
+          },
+        );
+  }
+
+  void watchAllTasks() {
+    if (watchAllTasksUseCase == null) {
+      _status = TaskStatus.failure;
+      _errorMessage = 'Watch all tasks is not available.';
+      notifyListeners();
+      return;
+    }
+
+    _tasksSubscription?.cancel();
+
+    _status = TaskStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    _tasksSubscription = watchAllTasksUseCase!().listen(
+      (result) {
+        result.fold(
+          (failure) {
+            debugPrint('WATCH ALL TASKS FAILURE: ${failure.message}');
+
+            _status = TaskStatus.failure;
+            _errorMessage = failure.message;
+            notifyListeners();
+          },
+          (tasks) {
+            debugPrint('WATCH ALL TASKS PROVIDER COUNT: ${tasks.length}');
+
+            _tasks = tasks;
+            _status = TaskStatus.loaded;
+            _errorMessage = null;
+            notifyListeners();
+          },
+        );
+      },
+      onError: (error, stackTrace) {
+        debugPrint('WATCH ALL TASKS STREAM ERROR: $error');
+        debugPrint('WATCH ALL TASKS STACK TRACE: $stackTrace');
+
+        _status = TaskStatus.failure;
+        _errorMessage = error.toString();
+        notifyListeners();
+      },
+    );
+  }
+
+  Future<void> getAssignedTasks({required String userId}) async {
+    _status = TaskStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await getAssignedTasksUseCase(
+      GetAssignedTasksParams(userId: userId),
+    );
+
+    result.fold(
+      (failure) {
+        _status = TaskStatus.failure;
+        _errorMessage = failure.message;
+        notifyListeners();
+      },
+      (tasks) {
+        _tasks = tasks;
+        _status = TaskStatus.loaded;
+        _errorMessage = null;
+        notifyListeners();
+      },
+    );
+  }
 
   Future<bool> createTask({
     required String projectId,
     required String title,
     required String description,
     required TaskPriority priority,
+    String? assignedUserId,
   }) async {
     _startAction();
 
@@ -119,28 +210,21 @@ class TaskProvider extends ChangeNotifier {
         title: title,
         description: description,
         priority: priority,
+        assignedUserId: assignedUserId,
       ),
     );
 
     return result.fold(
       (failure) {
         _setActionFailure(failure.message);
-
         return false;
       },
-      (task) {
-        _tasks = [task, ..._tasks];
-
+      (_) {
         _setActionSuccess();
-
         return true;
       },
     );
   }
-
-  // =========================
-  // Update Task
-  // =========================
 
   Future<bool> updateTask({
     required String projectId,
@@ -148,19 +232,9 @@ class TaskProvider extends ChangeNotifier {
     required String title,
     required String description,
     required TaskPriority priority,
-    required bool isCompleted,
+    String? assignedUserId,
   }) async {
     _startAction(taskId: taskId);
-
-    final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
-
-    if (taskIndex == -1) {
-      _setActionFailure('Task not found.');
-
-      return false;
-    }
-
-    final oldTask = _tasks[taskIndex];
 
     final result = await updateTaskUseCase(
       UpdateTaskParams(
@@ -169,39 +243,21 @@ class TaskProvider extends ChangeNotifier {
         title: title,
         description: description,
         priority: priority,
-        isCompleted: isCompleted,
-        oldIsCompleted: oldTask.isCompleted,
+        assignedUserId: assignedUserId,
       ),
     );
 
     return result.fold(
       (failure) {
         _setActionFailure(failure.message);
-
         return false;
       },
       (_) {
-        _tasks[taskIndex] = TaskEntity(
-          id: oldTask.id,
-          projectId: oldTask.projectId,
-          title: title,
-          description: description,
-          isCompleted: isCompleted,
-          priority: priority,
-          createdAt: oldTask.createdAt,
-          updatedAt: DateTime.now(),
-        );
-
         _setActionSuccess();
-
         return true;
       },
     );
   }
-
-  // =========================
-  // Delete Task
-  // =========================
 
   Future<bool> deleteTask({
     required String projectId,
@@ -213,7 +269,6 @@ class TaskProvider extends ChangeNotifier {
 
     if (taskIndex == -1) {
       _setActionFailure('Task not found.');
-
       return false;
     }
 
@@ -230,27 +285,20 @@ class TaskProvider extends ChangeNotifier {
     return result.fold(
       (failure) {
         _setActionFailure(failure.message);
-
         return false;
       },
       (_) {
-        _tasks.removeAt(taskIndex);
-
         _setActionSuccess();
-
         return true;
       },
     );
   }
 
-  // =========================
-  // Toggle Completion
-  // =========================
-
   Future<bool> toggleTaskCompletion({
     required String projectId,
     required String taskId,
     required bool isCompleted,
+    required bool updateProjectStats,
   }) async {
     _startAction(taskId: taskId);
 
@@ -259,86 +307,63 @@ class TaskProvider extends ChangeNotifier {
         projectId: projectId,
         taskId: taskId,
         isCompleted: isCompleted,
+        updateProjectStats: updateProjectStats,
       ),
     );
 
     return result.fold(
       (failure) {
         _setActionFailure(failure.message);
-
         return false;
       },
       (_) {
-        final index = _tasks.indexWhere((task) => task.id == taskId);
+        final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
 
-        if (index != -1) {
-          final oldTask = _tasks[index];
+        if (taskIndex != -1) {
+          final task = _tasks[taskIndex];
 
-          // The value passed to this method is the
-          // CURRENT state of the task.
-          //
-          // The remote data source toggles it to:
-          // !isCompleted
-          //
-          // So we must update the local state
-          // with the NEW value as well.
-          final newIsCompleted = !isCompleted;
-
-          _tasks[index] = TaskEntity(
-            id: oldTask.id,
-            projectId: oldTask.projectId,
-            title: oldTask.title,
-            description: oldTask.description,
-            isCompleted: newIsCompleted,
-            priority: oldTask.priority,
-            createdAt: oldTask.createdAt,
+          _tasks[taskIndex] = task.copyWith(
+            isCompleted: !isCompleted,
             updatedAt: DateTime.now(),
           );
         }
 
         _setActionSuccess();
-
+        notifyListeners();
         return true;
       },
     );
   }
 
-  // =========================
-  // Action State
-  // =========================
-
   void _startAction({String? taskId}) {
     _actionStatus = TaskActionStatus.loading;
-
     _actionErrorMessage = null;
     _actionTaskId = taskId;
-
     notifyListeners();
   }
 
   void _setActionSuccess() {
     _actionStatus = TaskActionStatus.success;
-
     _actionErrorMessage = null;
     _actionTaskId = null;
-
     notifyListeners();
   }
 
   void _setActionFailure(String message) {
     _actionStatus = TaskActionStatus.failure;
-
     _actionErrorMessage = message;
-
-    notifyListeners();
   }
 
   void resetActionStatus() {
     _actionStatus = TaskActionStatus.idle;
-
     _actionErrorMessage = null;
     _actionTaskId = null;
-
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _tasksSubscription?.cancel();
+    super.dispose();
   }
 }

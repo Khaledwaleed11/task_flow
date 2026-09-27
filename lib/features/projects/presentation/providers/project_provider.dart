@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/usecase/usecase.dart';
@@ -6,25 +8,25 @@ import '../../domain/usecases/create_project.dart';
 import '../../domain/usecases/delete_project.dart';
 import '../../domain/usecases/get_projects.dart';
 import '../../domain/usecases/update_project.dart';
+import '../../domain/usecases/watch_projects.dart';
 
-enum ProjectStatus {
-  initial,
-  loading,
-  loaded,
-  failure,
-}
+enum ProjectStatus { initial, loading, loaded, failure }
 
 class ProjectProvider extends ChangeNotifier {
   final CreateProject createProjectUseCase;
   final GetProjects getProjectsUseCase;
   final UpdateProject updateProjectUseCase;
   final DeleteProject deleteProjectUseCase;
+  final WatchProjects watchProjectsUseCase;
+
+  StreamSubscription? _projectsSubscription;
 
   ProjectProvider({
     required this.createProjectUseCase,
     required this.getProjectsUseCase,
     required this.updateProjectUseCase,
     required this.deleteProjectUseCase,
+    required this.watchProjectsUseCase,
   });
 
   ProjectStatus _status = ProjectStatus.initial;
@@ -49,15 +51,43 @@ class ProjectProvider extends ChangeNotifier {
     final result = await getProjectsUseCase(const NoParams());
 
     result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
       },
-          (projects) {
+      (projects) {
         _projects = projects;
 
         _status = ProjectStatus.loaded;
         _clearError();
         notifyListeners();
+      },
+    );
+  }
+
+  void watchProjects() {
+    _projectsSubscription?.cancel();
+
+    _status = ProjectStatus.loading;
+    _clearError();
+    notifyListeners();
+
+    _projectsSubscription = watchProjectsUseCase().listen(
+      (result) {
+        result.fold(
+          (failure) {
+            _setFailure(failure.message);
+          },
+          (projects) {
+            _projects = projects;
+
+            _status = ProjectStatus.loaded;
+            _clearError();
+            notifyListeners();
+          },
+        );
+      },
+      onError: (_) {
+        _setFailure('Failed to watch projects.');
       },
     );
   }
@@ -69,23 +99,15 @@ class ProjectProvider extends ChangeNotifier {
     _setLoading();
 
     final result = await createProjectUseCase(
-      CreateProjectParams(
-        name: name,
-        description: description,
-      ),
+      CreateProjectParams(name: name, description: description),
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
         return false;
       },
-          (project) {
-        _projects = [
-          project,
-          ..._projects,
-        ];
-
+      (_) {
         _status = ProjectStatus.loaded;
         _clearError();
         notifyListeners();
@@ -111,13 +133,13 @@ class ProjectProvider extends ChangeNotifier {
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
         return false;
       },
-          (_) {
+      (_) {
         final index = _projects.indexWhere(
-              (project) => project.id == projectId,
+          (project) => project.id == projectId,
         );
 
         if (index != -1) {
@@ -148,20 +170,16 @@ class ProjectProvider extends ChangeNotifier {
     _setLoading();
 
     final result = await deleteProjectUseCase(
-      DeleteProjectParams(
-        projectId: projectId,
-      ),
+      DeleteProjectParams(projectId: projectId),
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
         return false;
       },
-          (_) {
-        _projects.removeWhere(
-              (project) => project.id == projectId,
-        );
+      (_) {
+        _projects.removeWhere((project) => project.id == projectId);
 
         _status = ProjectStatus.loaded;
         _clearError();
@@ -186,5 +204,11 @@ class ProjectProvider extends ChangeNotifier {
 
   void _clearError() {
     _errorMessage = null;
+  }
+
+  @override
+  void dispose() {
+    _projectsSubscription?.cancel();
+    super.dispose();
   }
 }

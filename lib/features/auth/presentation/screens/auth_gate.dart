@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../domain/entities/user_entity.dart';
 import '../providers/auth_provider.dart';
+import '../../../admin/presentation/screens/admin_dashboard_screen.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 
@@ -30,12 +32,14 @@ class _AuthGateState extends State<AuthGate> {
           case AuthStatus.initial:
           case AuthStatus.loading:
             return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+              body: Center(child: CircularProgressIndicator()),
             );
 
           case AuthStatus.authenticated:
+            if (authProvider.user?.role == UserRole.admin) {
+              return const AdminDashboardScreen();
+            }
+
             return const HomeScreen();
 
           case AuthStatus.unauthenticated:

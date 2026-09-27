@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../../../core/error/exceptions/task_exception.dart';
 import '../../../../core/error/failures/failure.dart';
@@ -12,16 +13,13 @@ class TaskRepositoryImpl implements TaskRepository {
 
   TaskRepositoryImpl({required this.remoteDataSource});
 
-  // =========================
-  // Create Task
-  // =========================
-
   @override
   Future<Either<Failure, TaskEntity>> createTask({
     required String projectId,
     required String title,
     required String description,
     required TaskPriority priority,
+    String? assignedUserId,
   }) async {
     try {
       final task = await remoteDataSource.createTask(
@@ -29,6 +27,7 @@ class TaskRepositoryImpl implements TaskRepository {
         title: title,
         description: description,
         priority: priority.name,
+        assignedUserId: assignedUserId,
       );
 
       return Right(task.toEntity());
@@ -39,17 +38,12 @@ class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  // =========================
-  // Get Tasks
-  // =========================
-
   @override
   Future<Either<Failure, List<TaskEntity>>> getTasks({
     required String projectId,
   }) async {
     try {
       final tasks = await remoteDataSource.getTasks(projectId: projectId);
-
       return Right(tasks.map((task) => task.toEntity()).toList());
     } on TaskException catch (e) {
       return Left(TaskFailure(e.message));
@@ -58,9 +52,52 @@ class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  // =========================
-  // Get Task By ID
-  // =========================
+  @override
+  Stream<Either<Failure, List<TaskEntity>>> watchTasks({
+    required String projectId,
+  }) async* {
+    try {
+      await for (final tasks in remoteDataSource.watchTasks(
+        projectId: projectId,
+      )) {
+        yield Right(tasks.map((task) => task.toEntity()).toList());
+      }
+    } on TaskException catch (e) {
+      yield Left(TaskFailure(e.message));
+    } catch (_) {
+      yield const Left(TaskFailure('Failed to watch tasks.'));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<TaskEntity>>> watchAllTasks() async* {
+    try {
+      await for (final tasks in remoteDataSource.watchAllTasks()) {
+        yield Right(tasks.map((task) => task.toEntity()).toList());
+      }
+    } on TaskException catch (e) {
+      debugPrint('WATCH ALL TASKS TASK EXCEPTION: ${e.message}');
+      yield Left(TaskFailure(e.message));
+    } catch (e, stackTrace) {
+      debugPrint('WATCH ALL TASKS REPOSITORY ERROR: $e');
+      debugPrint('WATCH ALL TASKS REPOSITORY STACK: $stackTrace');
+      yield Left(TaskFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<TaskEntity>>> getAssignedTasks({
+    required String userId,
+  }) async {
+    try {
+      final tasks = await remoteDataSource.getAssignedTasks(userId: userId);
+      return Right(tasks.map((task) => task.toEntity()).toList());
+    } on TaskException catch (e) {
+      return Left(TaskFailure(e.message));
+    } catch (_) {
+      return const Left(TaskFailure('Failed to get assigned tasks.'));
+    }
+  }
 
   @override
   Future<Either<Failure, TaskEntity>> getTaskById({
@@ -85,10 +122,6 @@ class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  // =========================
-  // Update Task
-  // =========================
-
   @override
   Future<Either<Failure, Unit>> updateTask({
     required String projectId,
@@ -96,8 +129,7 @@ class TaskRepositoryImpl implements TaskRepository {
     required String title,
     required String description,
     required TaskPriority priority,
-    required bool isCompleted,
-    required bool oldIsCompleted,
+    String? assignedUserId,
   }) async {
     try {
       await remoteDataSource.updateTask(
@@ -106,8 +138,7 @@ class TaskRepositoryImpl implements TaskRepository {
         title: title,
         description: description,
         priority: priority.name,
-        isCompleted: isCompleted,
-        oldIsCompleted: oldIsCompleted,
+        assignedUserId: assignedUserId,
       );
 
       return const Right(unit);
@@ -117,10 +148,6 @@ class TaskRepositoryImpl implements TaskRepository {
       return const Left(TaskFailure('Failed to update task.'));
     }
   }
-
-  // =========================
-  // Delete Task
-  // =========================
 
   @override
   Future<Either<Failure, Unit>> deleteTask({
@@ -143,21 +170,19 @@ class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  // =========================
-  // Toggle Task Completion
-  // =========================
-
   @override
   Future<Either<Failure, Unit>> toggleTaskCompletion({
     required String projectId,
     required String taskId,
     required bool isCompleted,
+    required bool updateProjectStats,
   }) async {
     try {
       await remoteDataSource.toggleTaskCompletion(
         projectId: projectId,
         taskId: taskId,
         isCompleted: isCompleted,
+        updateProjectStats: updateProjectStats,
       );
 
       return const Right(unit);

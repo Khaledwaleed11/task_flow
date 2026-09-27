@@ -11,13 +11,12 @@ class ToggleTaskCompletion
   ToggleTaskCompletion(this.repository);
 
   @override
-  Future<Either<Failure, Unit>> call(
-      ToggleTaskCompletionParams params,
-      ) {
+  Future<Either<Failure, Unit>> call(ToggleTaskCompletionParams params) {
     return repository.toggleTaskCompletion(
       projectId: params.projectId,
       taskId: params.taskId,
       isCompleted: params.isCompleted,
+      updateProjectStats: params.updateProjectStats,
     );
   }
 }
@@ -26,10 +25,12 @@ class ToggleTaskCompletionParams {
   final String projectId;
   final String taskId;
   final bool isCompleted;
+  final bool updateProjectStats;
 
   const ToggleTaskCompletionParams({
     required this.projectId,
     required this.taskId,
     required this.isCompleted,
+    required this.updateProjectStats,
   });
 }

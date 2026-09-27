@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/get_current_user.dart';
@@ -6,13 +7,7 @@ import '../../domain/usecases/login.dart';
 import '../../domain/usecases/logout.dart';
 import '../../domain/usecases/register.dart';
 
-enum AuthStatus {
-  initial,
-  loading,
-  authenticated,
-  unauthenticated,
-  failure,
-}
+enum AuthStatus { initial, loading, authenticated, unauthenticated, failure }
 
 class AuthProvider extends ChangeNotifier {
   final Login loginUseCase;
@@ -32,25 +27,29 @@ class AuthProvider extends ChangeNotifier {
   String? _errorMessage;
 
   AuthStatus get status => _status;
+
   UserEntity? get user => _user;
+
   String? get errorMessage => _errorMessage;
 
   bool get isLoading => _status == AuthStatus.loading;
-  bool get isAuthenticated =>
-      _status == AuthStatus.authenticated;
+
+  bool get isAuthenticated => _status == AuthStatus.authenticated;
+
+  bool get isAdmin => _user?.role == UserRole.admin;
+
+  bool get isUser => _user?.role == UserRole.user;
 
   Future<void> checkCurrentUser() async {
     _setLoading();
 
-    final result = await getCurrentUserUseCase(
-      const NoParams(),
-    );
+    final result = await getCurrentUserUseCase(const NoParams());
 
     result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
       },
-          (user) {
+      (user) {
         if (user == null) {
           _status = AuthStatus.unauthenticated;
         } else {
@@ -64,25 +63,19 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     _setLoading();
 
     final result = await loginUseCase(
-      LoginParams(
-        email: email,
-        password: password,
-      ),
+      LoginParams(email: email, password: password),
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
         return false;
       },
-          (user) {
+      (user) {
         _user = user;
         _status = AuthStatus.authenticated;
         _clearError();
@@ -101,25 +94,31 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
 
     final result = await registerUseCase(
-      RegisterParams(
-        name: name,
-        email: email,
-        password: password,
-      ),
+      RegisterParams(name: name, email: email, password: password),
     );
 
-    return result.fold(
-          (failure) {
+    return await result.fold(
+      (failure) async {
         _setFailure(failure.message);
         return false;
       },
-          (user) {
-        _user = user;
-        _status = AuthStatus.authenticated;
-        _clearError();
-        notifyListeners();
+      (_) async {
+        final logoutResult = await logoutUseCase(const NoParams());
 
-        return true;
+        return logoutResult.fold(
+          (failure) {
+            _setFailure(failure.message);
+            return false;
+          },
+          (_) {
+            _user = null;
+            _status = AuthStatus.unauthenticated;
+            _clearError();
+            notifyListeners();
+
+            return true;
+          },
+        );
       },
     );
   }
@@ -127,16 +126,14 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> logout() async {
     _setLoading();
 
-    final result = await logoutUseCase(
-      const NoParams(),
-    );
+    final result = await logoutUseCase(const NoParams());
 
     return result.fold(
-          (failure) {
+      (failure) {
         _setFailure(failure.message);
         return false;
       },
-          (_) {
+      (_) {
         _user = null;
         _status = AuthStatus.unauthenticated;
         _clearError();

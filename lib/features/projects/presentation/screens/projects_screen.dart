@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/dependency_injection/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../tasks/presentation/providers/task_provider.dart';
 import '../../domain/entities/project_entity.dart';
 import '../providers/project_provider.dart';
 import '../widgets/project_card.dart';
 import '../widgets/projects_empty_view.dart';
 import '../widgets/projects_error_view.dart';
-import '../widgets/projects_header.dart';
 import 'create_project_screen.dart';
 import 'edit_project_screen.dart';
 import 'project_details_screen.dart';
@@ -25,10 +27,14 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     super.initState();
 
     Future.microtask(() {
+      if (!mounted) {
+        return;
+      }
+
       final provider = context.read<ProjectProvider>();
 
       if (provider.status == ProjectStatus.initial) {
-        provider.getProjects();
+        provider.watchProjects();
       }
     });
   }
@@ -40,17 +46,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 
-  Future<void> _openEditProject(
-      ProjectEntity project,
-      ) async {
-    debugPrint('OPEN EDIT PROJECT: ${project.id}');
-
+  Future<void> _openEditProject(ProjectEntity project) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => EditProjectScreen(
-          project: project,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => EditProjectScreen(project: project)),
     );
 
     if (!mounted) {
@@ -59,7 +57,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
     await context.read<ProjectProvider>().getProjects();
   }
-  Future<void> _openProjectDetails(project) async {
+
+  Future<void> _openProjectDetails(ProjectEntity project) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ProjectDetailsScreen(project: project)),
@@ -73,20 +72,41 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   }
 
   Future<void> _deleteProject(
-      ProjectProvider provider,
-      ProjectEntity project,
-      ) async {
-    debugPrint('DELETE PROJECT START: ${project.id}');
-
+    ProjectProvider provider,
+    ProjectEntity project,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Project'),
-          content: Text(
-            'Are you sure you want to delete '
-                '"${project.name}"?',
+          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+          title: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.error,
+                  size: 23,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text('Delete Project', style: AppTextStyles.title),
+              ),
+            ],
           ),
+          content: Text(
+            'Are you sure you want to delete "${project.name}"? '
+            'This action cannot be undone.',
+            style: AppTextStyles.bodySecondary,
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 18),
           actions: [
             TextButton(
               onPressed: () {
@@ -94,33 +114,24 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               },
               child: const Text('Cancel'),
             ),
-            FilledButton(
+            FilledButton.icon(
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-              ),
-              child: const Text('Delete'),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              icon: const Icon(Icons.delete_outline_rounded, size: 18),
+              label: const Text('Delete'),
             ),
           ],
         );
       },
     );
 
-    debugPrint('DELETE CONFIRMED: $confirmed');
-
     if (confirmed != true || !mounted) {
       return;
     }
 
-    debugPrint('CALLING PROVIDER DELETE');
-
-    final success = await provider.deleteProject(
-      project.id,
-    );
-
-    debugPrint('DELETE RESULT: $success');
+    final success = await provider.deleteProject(project.id);
 
     if (!mounted) {
       return;
@@ -130,77 +141,186 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(
-            success
-                ? 'Project deleted successfully'
-                : provider.errorMessage ??
-                'Failed to delete project',
+          content: Row(
+            children: [
+              Icon(
+                success
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.error_outline_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  success
+                      ? 'Project deleted successfully'
+                      : provider.errorMessage ?? 'Failed to delete project',
+                ),
+              ),
+            ],
           ),
-          backgroundColor:
-          success ? AppColors.success : AppColors.error,
+          backgroundColor: success ? AppColors.success : AppColors.error,
         ),
       );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => TaskProvider(
+        createTaskUseCase: sl(),
+        getTasksUseCase: sl(),
+        getAssignedTasksUseCase: sl(),
+        updateTaskUseCase: sl(),
+        deleteTaskUseCase: sl(),
+        toggleTaskCompletionUseCase: sl(),
+        watchTasksUseCase: sl(),
+        watchAllTasksUseCase: sl(),
+      )..watchAllTasks(),
+      child: const _ProjectsView(),
+    );
+  }
+}
+
+class _ProjectsView extends StatelessWidget {
+  const _ProjectsView();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Projects')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openCreateProject,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New Project'),
-      ),
       body: SafeArea(
-        child: Consumer<ProjectProvider>(
-          builder: (context, provider, child) {
+        child: Consumer2<ProjectProvider, TaskProvider>(
+          builder: (context, projectProvider, taskProvider, child) {
+            final projects = projectProvider.projects;
+            final tasks = taskProvider.tasks;
+
             return RefreshIndicator(
-              onRefresh: provider.getProjects,
+              onRefresh: () async {
+                await projectProvider.getProjects();
+                taskProvider.watchAllTasks();
+              },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  ProjectsHeader(projectCount: provider.projects.length),
-
-                  if (provider.status == ProjectStatus.loading)
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+                    sliver: SliverToBoxAdapter(
+                      child: _ProjectsTopBar(
+                        projectCount: projects.length,
+                        onBack: () {
+                          Navigator.of(context).pop();
+                        },
+                        onCreate: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CreateProjectScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  if (projectProvider.status == ProjectStatus.loading ||
+                      taskProvider.status == TaskStatus.loading)
                     const SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(child: CircularProgressIndicator()),
                     )
-                  else if (provider.status == ProjectStatus.failure)
-                    ProjectsErrorView(
-                      message:
-                          provider.errorMessage ?? 'Failed to load projects.',
-                      onRetry: provider.getProjects,
+                  else if (projectProvider.status == ProjectStatus.failure ||
+                      taskProvider.status == TaskStatus.failure)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: ProjectsErrorView(
+                          message:
+                              projectProvider.status == ProjectStatus.failure
+                              ? projectProvider.errorMessage ??
+                                    'Failed to load projects.'
+                              : taskProvider.errorMessage ??
+                                    'Failed to load tasks.',
+                          onRetry: () {
+                            if (projectProvider.status ==
+                                ProjectStatus.failure) {
+                              projectProvider.getProjects();
+                            }
+
+                            if (taskProvider.status == TaskStatus.failure) {
+                              taskProvider.watchAllTasks();
+                            }
+                          },
+                        ),
+                      ),
                     )
-                  else if (!provider.hasProjects)
-                    const ProjectsEmptyView()
+                  else if (projects.isEmpty)
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: ProjectsEmptyView(),
+                      ),
+                    )
                   else
                     SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
-                          final project = provider.projects[index];
+                          final project = projects[index];
+
+                          final projectTasks = tasks.where(
+                            (task) => task.projectId == project.id,
+                          );
+
+                          final totalTasks = projectTasks.length;
+
+                          final completedTasks = projectTasks
+                              .where((task) => task.isCompleted)
+                              .length;
+
+                          final pendingTasks = totalTasks - completedTasks;
+
+                          final progress = totalTasks == 0
+                              ? 0.0
+                              : completedTasks / totalTasks;
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 14),
-                            child:ProjectCard(
+                            child: ProjectCard(
                               project: project,
-                              onTap: () => _openProjectDetails(project),
+                              totalTasks: totalTasks,
+                              completedTasks: completedTasks,
+                              pendingTasks: pendingTasks,
+                              progress: progress,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ProjectDetailsScreen(project: project),
+                                  ),
+                                );
+                              },
                               onEdit: () {
-                                debugPrint('PROJECT SCREEN EDIT CALLBACK');
-                                debugPrint('PROJECT ID: ${project.id}');
-                                debugPrint('PROJECT NAME: ${project.name}');
-
-                                _openEditProject(project);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        EditProjectScreen(project: project),
+                                  ),
+                                );
                               },
                               onDelete: () {
-                                debugPrint('PROJECT SCREEN DELETE CALLBACK');
-                                debugPrint('PROJECT ID: ${project.id}');
-                                debugPrint('PROJECT NAME: ${project.name}');
-
-                                _deleteProject(provider, project);
-                              },                            ),
+                                _ProjectsScreenActions.deleteProject(
+                                  context,
+                                  projectProvider,
+                                  project,
+                                );
+                              },
+                            ),
                           );
-                        }, childCount: provider.projects.length),
+                        }, childCount: projects.length),
                       ),
                     ),
                 ],
@@ -209,6 +329,196 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
+          );
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Project'),
+      ),
+    );
+  }
+}
+
+class _ProjectsScreenActions {
+  static Future<void> deleteProject(
+    BuildContext context,
+    ProjectProvider provider,
+    ProjectEntity project,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+          title: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.error,
+                  size: 23,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text('Delete Project', style: AppTextStyles.title),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete "${project.name}"? '
+            'This action cannot be undone.',
+            style: AppTextStyles.bodySecondary,
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 18),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              icon: const Icon(Icons.delete_outline_rounded, size: 18),
+              label: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    final success = await provider.deleteProject(project.id);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                success
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.error_outline_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  success
+                      ? 'Project deleted successfully'
+                      : provider.errorMessage ?? 'Failed to delete project',
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: success ? AppColors.success : AppColors.error,
+        ),
+      );
+  }
+}
+
+class _ProjectsTopBar extends StatelessWidget {
+  final int projectCount;
+  final VoidCallback onBack;
+  final VoidCallback onCreate;
+
+  const _ProjectsTopBar({
+    required this.projectCount,
+    required this.onBack,
+    required this.onCreate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              onPressed: onBack,
+              tooltip: 'Back',
+              style: IconButton.styleFrom(
+                backgroundColor: Theme.of(context).cardColor,
+                foregroundColor: AppColors.textPrimary,
+                fixedSize: const Size(44, 44),
+                side: BorderSide(
+                  color: isDark ? AppColors.darkSurface : AppColors.border,
+                ),
+              ),
+              icon: const Icon(Icons.arrow_back_rounded, size: 20),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: onCreate,
+              tooltip: 'New project',
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                fixedSize: const Size(44, 44),
+              ),
+              icon: const Icon(Icons.add_rounded, size: 21),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Projects',
+          style: AppTextStyles.display.copyWith(
+            fontSize: 32,
+            letterSpacing: -1,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            Text(
+              projectCount == 0
+                  ? 'No projects in your workspace yet'
+                  : '$projectCount ${projectCount == 1 ? 'project' : 'projects'} in your workspace',
+              style: AppTextStyles.bodySecondary,
+            ),
+            if (projectCount > 0) ...[
+              const SizedBox(width: 10),
+              Container(
+                width: 5,
+                height: 5,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text('Workspace', style: AppTextStyles.caption),
+            ],
+          ],
+        ),
+      ],
     );
   }
 }

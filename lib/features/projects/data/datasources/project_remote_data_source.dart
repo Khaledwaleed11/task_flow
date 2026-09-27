@@ -13,6 +13,8 @@ abstract class ProjectRemoteDataSource {
 
   Future<List<ProjectModel>> getProjects({required String ownerId});
 
+  Stream<List<ProjectModel>> watchProjects({required String ownerId});
+
   Future<ProjectModel?> getProjectById({
     required String ownerId,
     required String projectId,
@@ -89,6 +91,26 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
   }
 
   @override
+  Stream<List<ProjectModel>> watchProjects({required String ownerId}) async* {
+    try {
+      await for (final snapshot
+          in _projectsCollection
+              .where('ownerId', isEqualTo: ownerId)
+              .snapshots()) {
+        yield snapshot.docs.map((document) {
+          return ProjectModel.fromJson(document.data());
+        }).toList();
+      }
+    } on FirebaseException catch (e) {
+      throw AppException(
+        'Firebase ${e.code}: ${e.message ?? 'Unknown Firebase error.'}',
+      );
+    } catch (e) {
+      throw AppException('Watch projects error: $e');
+    }
+  }
+
+  @override
   Future<ProjectModel?> getProjectById({
     required String ownerId,
     required String projectId,
@@ -140,35 +162,24 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
     required String projectId,
   }) async {
     try {
-      final document =
-      _projectsCollection.doc(projectId);
+      final document = _projectsCollection.doc(projectId);
 
-      debugPrint(
-        'DELETE PROJECT: ${document.path}',
-      );
+      debugPrint('DELETE PROJECT: ${document.path}');
 
       await document.delete();
 
-      debugPrint(
-        'DELETE PROJECT SUCCESS: ${document.path}',
-      );
+      debugPrint('DELETE PROJECT SUCCESS: ${document.path}');
     } on FirebaseException catch (e) {
       debugPrint(
         'DELETE PROJECT FIREBASE ERROR: '
-            '${e.code} - ${e.message}',
+        '${e.code} - ${e.message}',
       );
 
-      throw AppException(
-        e.message ?? 'Failed to delete project.',
-      );
+      throw AppException(e.message ?? 'Failed to delete project.');
     } catch (e) {
-      debugPrint(
-        'DELETE PROJECT ERROR: $e',
-      );
+      debugPrint('DELETE PROJECT ERROR: $e');
 
-      throw AppException(
-        e.toString(),
-      );
+      throw AppException(e.toString());
     }
   }
 }

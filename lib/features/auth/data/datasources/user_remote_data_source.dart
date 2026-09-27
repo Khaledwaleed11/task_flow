@@ -9,13 +9,10 @@ abstract class UserRemoteDataSource {
   Future<UserModel?> getUser(String userId);
 }
 
-class UserRemoteDataSourceImpl
-    implements UserRemoteDataSource {
+class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final FirebaseFirestore firestore;
 
-  UserRemoteDataSourceImpl({
-    required this.firestore,
-  });
+  UserRemoteDataSourceImpl({required this.firestore});
 
   CollectionReference<Map<String, dynamic>> get _usersCollection =>
       firestore.collection('users');
@@ -23,25 +20,18 @@ class UserRemoteDataSourceImpl
   @override
   Future<void> createUser(UserModel user) async {
     try {
-      await _usersCollection.doc(user.id).set(
-        user.toJson(),
-      );
+      await _usersCollection.doc(user.id).set(user.toJson());
     } on FirebaseException catch (e) {
-      throw AuthException(
-        e.message ?? 'Failed to create user profile.',
-      );
+      throw AuthException(e.message ?? 'Failed to create user profile.');
     } catch (_) {
-      throw const AuthException(
-        'Failed to create user profile.',
-      );
+      throw const AuthException('Failed to create user profile.');
     }
   }
 
   @override
   Future<UserModel?> getUser(String userId) async {
     try {
-      final document =
-      await _usersCollection.doc(userId).get();
+      final document = await _usersCollection.doc(userId).get();
 
       if (!document.exists || document.data() == null) {
         return null;
@@ -49,13 +39,9 @@ class UserRemoteDataSourceImpl
 
       return UserModel.fromJson(document.data()!);
     } on FirebaseException catch (e) {
-      throw AuthException(
-        e.message ?? 'Failed to get user profile.',
-      );
+      throw AuthException(e.message ?? 'Failed to get user profile.');
     } catch (_) {
-      throw const AuthException(
-        'Failed to get user profile.',
-      );
+      throw const AuthException('Failed to get user profile.');
     }
   }
 }

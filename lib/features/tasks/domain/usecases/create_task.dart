@@ -11,14 +11,13 @@ class CreateTask implements UseCase<TaskEntity, CreateTaskParams> {
   CreateTask(this.repository);
 
   @override
-  Future<Either<Failure, TaskEntity>> call(
-      CreateTaskParams params,
-      ) {
+  Future<Either<Failure, TaskEntity>> call(CreateTaskParams params) {
     return repository.createTask(
       projectId: params.projectId,
       title: params.title,
       description: params.description,
       priority: params.priority,
+      assignedUserId: params.assignedUserId,
     );
   }
 }
@@ -28,11 +27,13 @@ class CreateTaskParams {
   final String title;
   final String description;
   final TaskPriority priority;
+  final String? assignedUserId;
 
   const CreateTaskParams({
     required this.projectId,
     required this.title,
     required this.description,
     required this.priority,
+    this.assignedUserId,
   });
 }

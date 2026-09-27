@@ -31,9 +31,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
         description: description,
       );
 
-      return Right(
-        project.toEntity(),
-      );
+      return Right(project.toEntity());
     } on AppException catch (e) {
       return Left(ProjectFailure(e.message));
     } on ProjectFailure catch (e) {
@@ -50,17 +48,32 @@ class ProjectRepositoryImpl implements ProjectRepository {
 
       final projects = await remoteDataSource.getProjects(ownerId: userId);
 
-      return Right(
-        projects
-            .map((project) => project.toEntity())
-            .toList(),
-      );
+      return Right(projects.map((project) => project.toEntity()).toList());
     } on AppException catch (e) {
       return Left(ProjectFailure(e.message));
     } on ProjectFailure catch (e) {
       return Left(e);
     } catch (_) {
       return const Left(ProjectFailure('Failed to get projects.'));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<ProjectEntity>>> watchProjects() async* {
+    try {
+      final userId = _getCurrentUserId();
+
+      await for (final projects in remoteDataSource.watchProjects(
+        ownerId: userId,
+      )) {
+        yield Right(projects.map((project) => project.toEntity()).toList());
+      }
+    } on AppException catch (e) {
+      yield Left(ProjectFailure(e.message));
+    } on ProjectFailure catch (e) {
+      yield Left(e);
+    } catch (e) {
+      yield Left(ProjectFailure('Watch projects error: $e'));
     }
   }
 
@@ -80,9 +93,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
         return const Left(ProjectFailure('Project not found.'));
       }
 
-      return Right(
-        project.toEntity(),
-      );
+      return Right(project.toEntity());
     } on AppException catch (e) {
       return Left(ProjectFailure(e.message));
     } on ProjectFailure catch (e) {

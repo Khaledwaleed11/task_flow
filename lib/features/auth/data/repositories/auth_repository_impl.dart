@@ -35,6 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
         id: firebaseUser.uid,
         email: firebaseUser.email ?? email,
         name: name,
+        role: UserRole.user,
       );
 
       await userRemoteDataSource.createUser(user);

@@ -1,1 +1,28 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"taskflow-adb23","appId":"1:415724032092:android:a8e7012ccecc96705ed699","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"taskflow-adb23","configurations":{"android":"1:415724032092:android:a8e7012ccecc96705ed699","ios":"1:415724032092:ios:a7f4023a696d6ac35ed699"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "taskflow-adb23",
+          "appId": "1:415724032092:android:a8e7012ccecc96705ed699",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "taskflow-adb23",
+          "configurations": {
+            "android": "1:415724032092:android:a8e7012ccecc96705ed699",
+            "ios": "1:415724032092:ios:a7f4023a696d6ac35ed699"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "europe-west1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

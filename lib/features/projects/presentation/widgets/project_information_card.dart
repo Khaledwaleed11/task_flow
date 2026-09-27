@@ -27,71 +27,74 @@ class ProjectInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: AppColors.border.withValues(
-            alpha: Theme.of(context).brightness ==
-                Brightness.dark
-                ? 0.3
-                : 1,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          nameLabel,
+          style: AppTextStyles.body.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Project Information',
-            style: AppTextStyles.title.copyWith(
-              color: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.color,
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          TextFormField(
-            controller: nameController,
-            textInputAction: TextInputAction.next,
-            validator: nameValidator,
-            decoration: InputDecoration(
-              labelText: nameLabel,
-              hintText: nameHint,
-              prefixIcon: const Icon(
+        const SizedBox(height: 9),
+        TextFormField(
+          controller: nameController,
+          textInputAction: TextInputAction.next,
+          validator: nameValidator,
+          decoration: InputDecoration(
+            hintText: nameHint,
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(9),
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
                 Icons.folder_outlined,
+                color: AppColors.primary,
+                size: 18,
               ),
             ),
           ),
-
-          const SizedBox(height: 18),
-
-          TextFormField(
-            controller: descriptionController,
-            textInputAction: TextInputAction.newline,
-            validator: descriptionValidator,
-            maxLines: 5,
-            maxLength: 500,
-            decoration: InputDecoration(
-              labelText: descriptionLabel,
-              hintText: descriptionHint,
-              prefixIcon: const Padding(
-                padding: EdgeInsets.only(
-                  bottom: 72,
-                ),
-                child: Icon(
-                  Icons.description_outlined,
-                ),
-              ),
-              alignLabelWithHint: true,
-            ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          descriptionLabel,
+          style: AppTextStyles.body.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 9),
+        TextFormField(
+          controller: descriptionController,
+          textInputAction: TextInputAction.newline,
+          validator: descriptionValidator,
+          maxLines: 5,
+          maxLength: 500,
+          decoration: InputDecoration(
+            hintText: descriptionHint,
+            prefixIcon: const Padding(
+              padding: EdgeInsets.only(
+                left: 13,
+                right: 13,
+                bottom: 72,
+                top: 13,
+              ),
+              child: Icon(
+                Icons.description_outlined,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ),
+            alignLabelWithHint: true,
+            counterText: '',
+          ),
+        ),
+      ],
     );
   }
 }

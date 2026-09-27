@@ -6,6 +6,7 @@ import '../core/theme/app_theme.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/projects/presentation/providers/project_provider.dart';
+import '../features/tasks/presentation/providers/task_provider.dart';
 
 class TaskFlowApp extends StatelessWidget {
   const TaskFlowApp({super.key});
@@ -28,6 +29,18 @@ class TaskFlowApp extends StatelessWidget {
             getProjectsUseCase: sl(),
             updateProjectUseCase: sl(),
             deleteProjectUseCase: sl(),
+            watchProjectsUseCase: sl(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TaskProvider(
+            createTaskUseCase: sl(),
+            getTasksUseCase: sl(),
+            getAssignedTasksUseCase: sl(),
+            updateTaskUseCase: sl(),
+            deleteTaskUseCase: sl(),
+            toggleTaskCompletionUseCase: sl(),
+            watchTasksUseCase: sl(),
           ),
         ),
       ],

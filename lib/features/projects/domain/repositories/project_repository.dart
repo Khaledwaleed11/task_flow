@@ -11,9 +11,9 @@ abstract class ProjectRepository {
 
   Future<Either<Failure, List<ProjectEntity>>> getProjects();
 
-  Future<Either<Failure, ProjectEntity>> getProjectById(
-      String projectId,
-      );
+  Stream<Either<Failure, List<ProjectEntity>>> watchProjects();
+
+  Future<Either<Failure, ProjectEntity>> getProjectById(String projectId);
 
   Future<Either<Failure, Unit>> updateProject({
     required String projectId,
@@ -21,7 +21,5 @@ abstract class ProjectRepository {
     required String description,
   });
 
-  Future<Either<Failure, Unit>> deleteProject(
-      String projectId,
-      );
+  Future<Either<Failure, Unit>> deleteProject(String projectId);
 }

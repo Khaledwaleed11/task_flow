@@ -15,133 +15,110 @@ class TaskInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurface
-            : AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? AppColors.darkTextSecondary.withValues(
-            alpha: 0.10,
-          )
-              : AppColors.border,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Task title',
+          style: AppTextStyles.body.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: isDark ? 0.10 : 0.04,
-            ),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Task information',
-            style: AppTextStyles.title.copyWith(
-              color: isDark
-                  ? AppColors.darkTextPrimary
-                  : AppColors.textPrimary,
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          TextFormField(
-            controller: titleController,
-            textInputAction: TextInputAction.next,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Task title',
-              hintText: 'e.g. Build login screen',
-              prefixIcon: Icon(
+        const SizedBox(height: 9),
+        TextFormField(
+          controller: titleController,
+          textInputAction: TextInputAction.next,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'e.g. Build login screen',
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(9),
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
                 Icons.task_alt_outlined,
+                color: AppColors.primary,
+                size: 18,
               ),
             ),
-            validator: (value) {
-              if (value == null ||
-                  value.trim().isEmpty) {
-                return 'Please enter a task title.';
-              }
-
-              if (value.trim().length < 3) {
-                return 'Task title must be at least 3 characters.';
-              }
-
-              return null;
-            },
           ),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter a task title.';
+            }
 
-          const SizedBox(height: 20),
+            if (value.trim().length < 3) {
+              return 'Task title must be at least 3 characters.';
+            }
 
-          TextFormField(
-            controller: descriptionController,
-            maxLines: 5,
-            minLines: 4,
-            maxLength: 500,
-            textCapitalization: TextCapitalization.sentences,
-            textInputAction: TextInputAction.newline,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              hintText: 'Describe what needs to be done...',
-              alignLabelWithHint: true,
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(
-                  bottom: 72,
-                ),
-                child: Icon(
-                  Icons.description_outlined,
-                ),
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Description',
+          style: AppTextStyles.body.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 9),
+        TextFormField(
+          controller: descriptionController,
+          maxLines: 5,
+          minLines: 4,
+          maxLength: 500,
+          textCapitalization: TextCapitalization.sentences,
+          textInputAction: TextInputAction.newline,
+          decoration: const InputDecoration(
+            hintText: 'Describe what needs to be done...',
+            alignLabelWithHint: true,
+            prefixIcon: Padding(
+              padding: EdgeInsets.only(
+                left: 13,
+                right: 13,
+                bottom: 72,
+                top: 13,
               ),
-              counterText: '',
+              child: Icon(
+                Icons.description_outlined,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ),
+            counterText: '',
           ),
-
-          const SizedBox(height: 8),
-
-          Row(
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 15,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.textTertiary,
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const Icon(
+              Icons.info_outline_rounded,
+              size: 15,
+              color: AppColors.textTertiary,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Keep the task description clear and actionable.',
+                style: AppTextStyles.caption,
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Keep the task description clear and actionable.',
-                  style: AppTextStyles.caption.copyWith(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.textTertiary,
-                  ),
-                ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${descriptionController.text.length}/500',
+              style: AppTextStyles.caption.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(width: 8),
-              Text(
-                '${descriptionController.text.length}/500',
-                style: AppTextStyles.caption.copyWith(
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.textTertiary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

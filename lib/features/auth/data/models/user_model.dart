@@ -5,6 +5,7 @@ class UserModel extends UserEntity {
     required super.id,
     required super.email,
     required super.name,
+    required super.role,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -12,15 +13,12 @@ class UserModel extends UserEntity {
       id: json['id'] as String,
       email: json['email'] as String,
       name: json['name'] as String,
+      role: _roleFromString(json['role'] as String?),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'name': name,
-    };
+    return {'id': id, 'email': email, 'name': name, 'role': role.name};
   }
 
   factory UserModel.fromEntity(UserEntity entity) {
@@ -28,6 +26,17 @@ class UserModel extends UserEntity {
       id: entity.id,
       email: entity.email,
       name: entity.name,
+      role: entity.role,
     );
+  }
+
+  static UserRole _roleFromString(String? value) {
+    switch (value) {
+      case 'admin':
+        return UserRole.admin;
+      case 'user':
+      default:
+        return UserRole.user;
+    }
   }
 }
