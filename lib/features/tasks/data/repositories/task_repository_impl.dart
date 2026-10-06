@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../../../../core/error/exceptions/task_exception.dart';
 import '../../../../core/error/failures/failure.dart';
-import '../../../../core/error/failures/task_failure..dart';
+import '../../../../core/error/failures/task_failure.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/repositories/task_repository.dart';
 import '../datasources/task_remote_data_source.dart';

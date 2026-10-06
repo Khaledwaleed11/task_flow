@@ -1,6 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import '../../features/profile/data/datasources/cloudinary_image_storage_data_source.dart';
+import '../../features/profile/data/datasources/image_storage_data_source.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/usecases/update_profile_image.dart';
 import '../../features/tasks/domain/usecases/watch_all_tasks.dart';
 import '../../features/admin/data/datasources/admin_remote_data_source.dart';
 import '../../features/admin/data/repositories/admin_repository_impl.dart';
@@ -56,6 +61,23 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton<UserRemoteDataSource>(
     () => UserRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+
+  sl.registerLazySingleton<ImageStorageDataSource>(
+        () => CloudinaryImageStorageDataSource(),
+  );
+
+  sl.registerLazySingleton<ProfileRepository>(
+        () => ProfileRepositoryImpl(
+      userRemoteDataSource: sl<UserRemoteDataSource>(),
+      imageStorageDataSource: sl<ImageStorageDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<UpdateProfileImage>(
+        () => UpdateProfileImage(
+      sl<ProfileRepository>(),
+    ),
   );
 
   sl.registerLazySingleton<AuthRepository>(

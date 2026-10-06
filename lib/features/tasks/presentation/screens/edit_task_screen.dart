@@ -6,8 +6,12 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin/presentation/providers/admin_user_provider.dart';
 import '../../domain/entities/task_entity.dart';
 import '../providers/task_provider.dart';
+import '../widgets/edit_task_assignment_section.dart';
+import '../widgets/edit_task_completion_status.dart';
+import '../widgets/edit_task_header.dart';
 import '../widgets/edit_task_information_card.dart';
 import '../widgets/edit_task_priority_selector.dart';
+import '../widgets/edit_task_section_label.dart';
 import '../widgets/save_task_button.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -161,7 +165,9 @@ class _EditTaskScreenState extends State<EditTaskScreen>
   @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
+
     final userProvider = context.watch<AdminUserProvider>();
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -180,14 +186,13 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _TopBar(
+                        EditTaskHeader(
                           onBack: () {
                             Navigator.of(context).pop();
                           },
                         ),
                         const SizedBox(height: 28),
-                        const _HeroHeader(),
-                        const SizedBox(height: 28),
+
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
@@ -211,7 +216,7 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const _SectionLabel(
+                              const EditTaskSectionLabel(
                                 icon: Icons.edit_note_rounded,
                                 title: 'Task information',
                                 subtitle: 'Update the details of this task.',
@@ -232,7 +237,9 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 18),
+
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
@@ -247,12 +254,13 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const _SectionLabel(
+                              const EditTaskSectionLabel(
                                 icon: Icons.tune_rounded,
                                 title: 'Task settings',
                                 subtitle: 'Update priority and assignment.',
                               ),
                               const SizedBox(height: 20),
+
                               EditTaskPrioritySelector(
                                 selectedPriority: _selectedPriority,
                                 onChanged: (priority) {
@@ -261,14 +269,30 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                                   });
                                 },
                               ),
+
                               const SizedBox(height: 20),
-                              _buildAssignmentSelector(userProvider),
+
+                              EditTaskAssignmentSection(
+                                provider: userProvider,
+                                selectedUserId: _selectedUserId,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedUserId = value;
+                                  });
+                                },
+                              ),
+
                               const SizedBox(height: 20),
-                              _buildCompletionStatus(),
+
+                              EditTaskCompletionStatus(
+                                isCompleted: widget.task.isCompleted,
+                              ),
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 18),
+
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
@@ -298,13 +322,33 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 24),
+
                         SaveTaskButton(
                           isLoading: taskProvider.isActionLoading,
                           onPressed: _updateTask,
                         ),
+
                         const SizedBox(height: 16),
-                        const _SecurityFooter(),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.lock_outline_rounded,
+                              size: 14,
+                              color: AppColors.textTertiary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Your task changes are securely stored.',
+                              style: AppTextStyles.caption.copyWith(
+                                fontSize: 10.5,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -314,312 +358,6 @@ class _EditTaskScreenState extends State<EditTaskScreen>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildAssignmentSelector(AdminUserProvider provider) {
-    final usersById = <String, dynamic>{};
-
-    for (final user in provider.assignableUsers) {
-      usersById[user.id] = user;
-    }
-
-    final users = usersById.values.toList();
-
-    final hasSelectedUser =
-        _selectedUserId != null &&
-        users.any((user) => user.id == _selectedUserId);
-
-    final dropdownValue = hasSelectedUser ? _selectedUserId : null;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Assignment', style: AppTextStyles.title),
-        const SizedBox(height: 10),
-        DropdownButtonFormField<String?>(
-          initialValue: dropdownValue,
-          decoration: const InputDecoration(
-            labelText: 'Assign to',
-            hintText: 'Select a user',
-            prefixIcon: Icon(Icons.person_outline_rounded),
-          ),
-          items: [
-            const DropdownMenuItem<String?>(
-              value: null,
-              child: Text('No assignment'),
-            ),
-            ...users.map((user) {
-              return DropdownMenuItem<String?>(
-                value: user.id,
-                child: Text(user.email, overflow: TextOverflow.ellipsis),
-              );
-            }),
-          ],
-          onChanged: users.isNotEmpty
-              ? (value) {
-                  setState(() {
-                    _selectedUserId = value;
-                  });
-                }
-              : null,
-        ),
-        if (provider.status == AdminUserStatus.loading) ...[
-          const SizedBox(height: 12),
-          const LinearProgressIndicator(minHeight: 2),
-        ],
-        if (!provider.hasAssignableUsers &&
-            provider.status == AdminUserStatus.loaded) ...[
-          const SizedBox(height: 12),
-          const _AssignmentHint(),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildCompletionStatus() {
-    final isCompleted = widget.task.isCompleted;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackground : AppColors.background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isDark ? AppColors.darkSurface : AppColors.border,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: isCompleted
-                  ? AppColors.success.withValues(alpha: 0.1)
-                  : AppColors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              isCompleted
-                  ? Icons.check_circle_rounded
-                  : Icons.radio_button_unchecked_rounded,
-              color: isCompleted ? AppColors.success : AppColors.warning,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Completion Status', style: AppTextStyles.title),
-                const SizedBox(height: 3),
-                Text(
-                  isCompleted ? 'Completed' : 'Pending',
-                  style: AppTextStyles.bodySecondary.copyWith(
-                    color: isCompleted ? AppColors.success : AppColors.warning,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : AppColors.surface,
-              borderRadius: BorderRadius.circular(9),
-              border: Border.all(
-                color: isDark ? AppColors.darkSurface : AppColors.border,
-              ),
-            ),
-            child: const Text('Read only', style: AppTextStyles.caption),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  final VoidCallback onBack;
-
-  const _TopBar({required this.onBack});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Row(
-      children: [
-        IconButton(
-          onPressed: onBack,
-          tooltip: 'Back',
-          style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).cardColor,
-            foregroundColor: AppColors.textPrimary,
-            fixedSize: const Size(44, 44),
-            side: BorderSide(
-              color: isDark ? AppColors.darkSurface : AppColors.border,
-            ),
-          ),
-          icon: const Icon(Icons.arrow_back_rounded, size: 20),
-        ),
-        const SizedBox(width: 12),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Edit Task', style: AppTextStyles.title),
-              SizedBox(height: 2),
-              Text(
-                'Update this task and keep your project organized',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HeroHeader extends StatelessWidget {
-  const _HeroHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.primaryDark, AppColors.primary],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.2),
-                blurRadius: 22,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: const Icon(Icons.edit_rounded, color: Colors.white, size: 30),
-        ),
-        const SizedBox(height: 18),
-        const Text(
-          'Refine your task',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.display,
-        ),
-        const SizedBox(height: 7),
-        Text(
-          'Update the details and keep everything on track.',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.bodySecondary.copyWith(fontSize: 14),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  const _SectionLabel({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primarySoft,
-            borderRadius: BorderRadius.circular(13),
-          ),
-          child: Icon(icon, color: AppColors.primary, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyles.title.copyWith(fontSize: 15)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: AppTextStyles.caption),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AssignmentHint extends StatelessWidget {
-  const _AssignmentHint();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.info_outline_rounded, size: 17, color: AppColors.warning),
-          SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'No users are currently available for assignment.',
-              style: AppTextStyles.caption,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SecurityFooter extends StatelessWidget {
-  const _SecurityFooter();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.lock_outline_rounded,
-          size: 14,
-          color: AppColors.textTertiary,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          'Your task changes are securely stored.',
-          style: AppTextStyles.caption.copyWith(fontSize: 10.5),
-        ),
-      ],
     );
   }
 }

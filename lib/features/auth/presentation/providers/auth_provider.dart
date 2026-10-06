@@ -46,10 +46,10 @@ class AuthProvider extends ChangeNotifier {
     final result = await getCurrentUserUseCase(const NoParams());
 
     result.fold(
-      (failure) {
+          (failure) {
         _setFailure(failure.message);
       },
-      (user) {
+          (user) {
         if (user == null) {
           _status = AuthStatus.unauthenticated;
         } else {
@@ -63,19 +63,25 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
-  Future<bool> login({required String email, required String password}) async {
+  Future<bool> login({
+    required String email,
+    required String password,
+  }) async {
     _setLoading();
 
     final result = await loginUseCase(
-      LoginParams(email: email, password: password),
+      LoginParams(
+        email: email,
+        password: password,
+      ),
     );
 
     return result.fold(
-      (failure) {
+          (failure) {
         _setFailure(failure.message);
         return false;
       },
-      (user) {
+          (user) {
         _user = user;
         _status = AuthStatus.authenticated;
         _clearError();
@@ -94,23 +100,29 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
 
     final result = await registerUseCase(
-      RegisterParams(name: name, email: email, password: password),
+      RegisterParams(
+        name: name,
+        email: email,
+        password: password,
+      ),
     );
 
     return await result.fold(
-      (failure) async {
+          (failure) async {
         _setFailure(failure.message);
         return false;
       },
-      (_) async {
-        final logoutResult = await logoutUseCase(const NoParams());
+          (_) async {
+        final logoutResult = await logoutUseCase(
+          const NoParams(),
+        );
 
         return logoutResult.fold(
-          (failure) {
+              (failure) {
             _setFailure(failure.message);
             return false;
           },
-          (_) {
+              (_) {
             _user = null;
             _status = AuthStatus.unauthenticated;
             _clearError();
@@ -126,14 +138,16 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> logout() async {
     _setLoading();
 
-    final result = await logoutUseCase(const NoParams());
+    final result = await logoutUseCase(
+      const NoParams(),
+    );
 
     return result.fold(
-      (failure) {
+          (failure) {
         _setFailure(failure.message);
         return false;
       },
-      (_) {
+          (_) {
         _user = null;
         _status = AuthStatus.unauthenticated;
         _clearError();
@@ -142,6 +156,13 @@ class AuthProvider extends ChangeNotifier {
         return true;
       },
     );
+  }
+
+  void updateUser(UserEntity user) {
+    _user = user;
+    _status = AuthStatus.authenticated;
+    _clearError();
+    notifyListeners();
   }
 
   void _setLoading() {

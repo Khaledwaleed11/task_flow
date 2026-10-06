@@ -1,15 +1,20 @@
-enum UserRole { user, admin }
+enum UserRole {
+  user,
+  admin,
+}
 
 class UserEntity {
   final String id;
   final String email;
   final String name;
   final UserRole role;
+  final String? profileImageUrl;
 
   const UserEntity({
     required this.id,
     required this.email,
     required this.name,
     required this.role,
+    this.profileImageUrl,
   });
 }

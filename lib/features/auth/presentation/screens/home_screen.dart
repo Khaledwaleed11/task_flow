@@ -31,8 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    final authProvider = context.read<AuthProvider>();
+    final projectProvider = context.read<ProjectProvider>();
+    final taskProvider = context.read<TaskProvider>();
+
     Future.microtask(() {
-      final authProvider = context.read<AuthProvider>();
       final user = authProvider.user;
 
       if (user == null) {
@@ -40,11 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (user.role == UserRole.admin) {
-        context.read<ProjectProvider>().getProjects();
+        projectProvider.getProjects();
         return;
       }
 
-      context.read<TaskProvider>().getAssignedTasks(userId: user.id);
+      taskProvider.getAssignedTasks(
+        userId: user.id,
+      );
     });
   }
 

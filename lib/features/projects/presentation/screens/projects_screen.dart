@@ -10,6 +10,7 @@ import '../providers/project_provider.dart';
 import '../widgets/project_card.dart';
 import '../widgets/projects_empty_view.dart';
 import '../widgets/projects_error_view.dart';
+import '../widgets/projects_top_bar.dart';
 import 'create_project_screen.dart';
 import 'edit_project_screen.dart';
 import 'project_details_screen.dart';
@@ -37,132 +38,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         provider.watchProjects();
       }
     });
-  }
-
-  Future<void> _openCreateProject() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
-    );
-  }
-
-  Future<void> _openEditProject(ProjectEntity project) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => EditProjectScreen(project: project)),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    await context.read<ProjectProvider>().getProjects();
-  }
-
-  Future<void> _openProjectDetails(ProjectEntity project) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ProjectDetailsScreen(project: project)),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    await context.read<ProjectProvider>().getProjects();
-  }
-
-  Future<void> _deleteProject(
-    ProjectProvider provider,
-    ProjectEntity project,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-          title: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: AppColors.error,
-                  size: 23,
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Text('Delete Project', style: AppTextStyles.title),
-              ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to delete "${project.name}"? '
-            'This action cannot be undone.',
-            style: AppTextStyles.bodySecondary,
-          ),
-          actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 18),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            FilledButton.icon(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true);
-              },
-              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-              icon: const Icon(Icons.delete_outline_rounded, size: 18),
-              label: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true || !mounted) {
-      return;
-    }
-
-    final success = await provider.deleteProject(project.id);
-
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                success
-                    ? Icons.check_circle_outline_rounded
-                    : Icons.error_outline_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  success
-                      ? 'Project deleted successfully'
-                      : provider.errorMessage ?? 'Failed to delete project',
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: success ? AppColors.success : AppColors.error,
-        ),
-      );
   }
 
   @override
@@ -206,7 +81,7 @@ class _ProjectsView extends StatelessWidget {
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
                     sliver: SliverToBoxAdapter(
-                      child: _ProjectsTopBar(
+                      child: ProjectsTopBar(
                         projectCount: projects.length,
                         onBack: () {
                           Navigator.of(context).pop();
@@ -437,88 +312,5 @@ class _ProjectsScreenActions {
           backgroundColor: success ? AppColors.success : AppColors.error,
         ),
       );
-  }
-}
-
-class _ProjectsTopBar extends StatelessWidget {
-  final int projectCount;
-  final VoidCallback onBack;
-  final VoidCallback onCreate;
-
-  const _ProjectsTopBar({
-    required this.projectCount,
-    required this.onBack,
-    required this.onCreate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            IconButton(
-              onPressed: onBack,
-              tooltip: 'Back',
-              style: IconButton.styleFrom(
-                backgroundColor: Theme.of(context).cardColor,
-                foregroundColor: AppColors.textPrimary,
-                fixedSize: const Size(44, 44),
-                side: BorderSide(
-                  color: isDark ? AppColors.darkSurface : AppColors.border,
-                ),
-              ),
-              icon: const Icon(Icons.arrow_back_rounded, size: 20),
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: onCreate,
-              tooltip: 'New project',
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                fixedSize: const Size(44, 44),
-              ),
-              icon: const Icon(Icons.add_rounded, size: 21),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Projects',
-          style: AppTextStyles.display.copyWith(
-            fontSize: 32,
-            letterSpacing: -1,
-          ),
-        ),
-        const SizedBox(height: 7),
-        Row(
-          children: [
-            Text(
-              projectCount == 0
-                  ? 'No projects in your workspace yet'
-                  : '$projectCount ${projectCount == 1 ? 'project' : 'projects'} in your workspace',
-              style: AppTextStyles.bodySecondary,
-            ),
-            if (projectCount > 0) ...[
-              const SizedBox(width: 10),
-              Container(
-                width: 5,
-                height: 5,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text('Workspace', style: AppTextStyles.caption),
-            ],
-          ],
-        ),
-      ],
-    );
   }
 }

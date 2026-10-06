@@ -19,8 +19,10 @@ class _AuthGateState extends State<AuthGate> {
   void initState() {
     super.initState();
 
+    final authProvider = context.read<AuthProvider>();
+
     Future.microtask(() {
-      context.read<AuthProvider>().checkCurrentUser();
+      authProvider.checkCurrentUser();
     });
   }
 

@@ -4,8 +4,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class CreateTaskHeader extends StatelessWidget {
+  final VoidCallback onBack;
+
   const CreateTaskHeader({
     super.key,
+    required this.onBack,
   });
 
   @override
@@ -16,9 +19,28 @@ class CreateTaskHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        IconButton(
+          onPressed: onBack,
+          tooltip: 'Back',
+          style: IconButton.styleFrom(
+            backgroundColor: Theme.of(context).cardColor,
+            foregroundColor: AppColors.textPrimary,
+            fixedSize: const Size(44, 44),
+            side: BorderSide(
+              color: isDark
+                  ? AppColors.darkSurface
+                  : AppColors.border,
+            ),
+          ),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 14),
         Container(
-          width: 58,
-          height: 58,
+          width: 54,
+          height: 54,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [
@@ -28,7 +50,7 @@ class CreateTaskHeader extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(17),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withValues(
@@ -42,10 +64,10 @@ class CreateTaskHeader extends StatelessWidget {
           child: const Icon(
             Icons.add_task_rounded,
             color: Colors.white,
-            size: 28,
+            size: 27,
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,9 +80,11 @@ class CreateTaskHeader extends StatelessWidget {
                       : AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 'Add a task to keep your project organized.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodySecondary.copyWith(
                   color: isDark
                       ? AppColors.darkTextSecondary

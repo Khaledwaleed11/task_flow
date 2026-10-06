@@ -7,12 +7,19 @@ abstract class UserRemoteDataSource {
   Future<void> createUser(UserModel user);
 
   Future<UserModel?> getUser(String userId);
+
+  Future<void> updateProfileImage({
+    required String userId,
+    required String imageUrl,
+  });
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final FirebaseFirestore firestore;
 
-  UserRemoteDataSourceImpl({required this.firestore});
+  UserRemoteDataSourceImpl({
+    required this.firestore,
+  });
 
   CollectionReference<Map<String, dynamic>> get _usersCollection =>
       firestore.collection('users');
@@ -22,9 +29,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     try {
       await _usersCollection.doc(user.id).set(user.toJson());
     } on FirebaseException catch (e) {
-      throw AuthException(e.message ?? 'Failed to create user profile.');
+      throw AuthException(
+        e.message ?? 'Failed to create user profile.',
+      );
     } catch (_) {
-      throw const AuthException('Failed to create user profile.');
+      throw const AuthException(
+        'Failed to create user profile.',
+      );
     }
   }
 
@@ -39,9 +50,33 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
       return UserModel.fromJson(document.data()!);
     } on FirebaseException catch (e) {
-      throw AuthException(e.message ?? 'Failed to get user profile.');
+      throw AuthException(
+        e.message ?? 'Failed to get user profile.',
+      );
     } catch (_) {
-      throw const AuthException('Failed to get user profile.');
+      throw const AuthException(
+        'Failed to get user profile.',
+      );
+    }
+  }
+
+  @override
+  Future<void> updateProfileImage({
+    required String userId,
+    required String imageUrl,
+  }) async {
+    try {
+      await _usersCollection.doc(userId).update({
+        'profileImageUrl': imageUrl,
+      });
+    } on FirebaseException catch (e) {
+      throw AuthException(
+        e.message ?? 'Failed to update profile image.',
+      );
+    } catch (_) {
+      throw const AuthException(
+        'Failed to update profile image.',
+      );
     }
   }
 }
