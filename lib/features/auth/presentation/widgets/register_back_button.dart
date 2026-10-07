@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-
 class RegisterBackButton extends StatelessWidget {
   final VoidCallback onPressed;
 
@@ -12,8 +10,8 @@ class RegisterBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -21,13 +19,16 @@ class RegisterBackButton extends StatelessWidget {
         onPressed: onPressed,
         tooltip: 'Back',
         style: IconButton.styleFrom(
-          backgroundColor: Theme.of(context).cardColor,
-          foregroundColor: AppColors.textPrimary,
+          backgroundColor: colorScheme.surface,
+          foregroundColor: colorScheme.onSurface,
           fixedSize: const Size(44, 44),
           side: BorderSide(
-            color: isDark
-                ? AppColors.darkSurface
-                : AppColors.border,
+            color: colorScheme.outline.withValues(
+              alpha: 0.7,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         icon: const Icon(

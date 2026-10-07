@@ -13,6 +13,9 @@ class WorkspaceOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -29,7 +32,7 @@ class WorkspaceOverviewCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(
-              alpha: 0.2,
+              alpha: isDark ? 0.12 : 0.20,
             ),
             blurRadius: 20,
             offset: const Offset(0, 10),
@@ -56,8 +59,7 @@ class WorkspaceOverviewCard extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Your Workspace',

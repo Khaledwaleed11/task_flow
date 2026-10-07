@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class ProjectInformationCard extends StatelessWidget {
@@ -27,6 +26,8 @@ class ProjectInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -35,6 +36,7 @@ class ProjectInformationCard extends StatelessWidget {
           style: AppTextStyles.body.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 9),
@@ -49,12 +51,14 @@ class ProjectInformationCard extends StatelessWidget {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: AppColors.primarySoft,
+                color: colorScheme.primary.withValues(
+                  alpha: 0.10,
+                ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.folder_outlined,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 size: 18,
               ),
             ),
@@ -66,6 +70,7 @@ class ProjectInformationCard extends StatelessWidget {
           style: AppTextStyles.body.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 9),
@@ -77,8 +82,8 @@ class ProjectInformationCard extends StatelessWidget {
           maxLength: 500,
           decoration: InputDecoration(
             hintText: descriptionHint,
-            prefixIcon: const Padding(
-              padding: EdgeInsets.only(
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(
                 left: 13,
                 right: 13,
                 bottom: 72,
@@ -86,7 +91,7 @@ class ProjectInformationCard extends StatelessWidget {
               ),
               child: Icon(
                 Icons.description_outlined,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 size: 20,
               ),
             ),

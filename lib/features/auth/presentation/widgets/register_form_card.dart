@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'auth_submit_button.dart';
 import 'auth_text_field.dart';
@@ -44,18 +43,19 @@ class RegisterFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: isDark
-              ? AppColors.darkSurface
-              : AppColors.border,
+          color: colorScheme.outline.withValues(
+            alpha: 0.6,
+          ),
         ),
         boxShadow: [
           BoxShadow(
@@ -74,12 +74,15 @@ class RegisterFormCard extends StatelessWidget {
             'Create your account',
             style: AppTextStyles.title.copyWith(
               fontSize: 17,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             'Set up your workspace account in a few simple steps.',
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
           AuthTextField(

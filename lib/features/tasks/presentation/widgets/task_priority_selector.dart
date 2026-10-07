@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/task_entity.dart';
 
@@ -16,8 +15,7 @@ class TaskPrioritySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,55 +23,39 @@ class TaskPrioritySelector extends StatelessWidget {
         Text(
           'Priority',
           style: AppTextStyles.title.copyWith(
-            color: isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.textPrimary,
+            color: colorScheme.onSurface,
           ),
         ),
-
         const SizedBox(height: 6),
-
         Text(
           'Choose how important this task is.',
           style: AppTextStyles.bodySecondary.copyWith(
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
-
         const SizedBox(height: 14),
-
         _PriorityOption(
           priority: TaskPriority.low,
           label: 'Low',
           icon: Icons.keyboard_arrow_down_rounded,
           selected: selectedPriority == TaskPriority.low,
           onTap: () => onChanged(TaskPriority.low),
-          isDark: isDark,
         ),
-
         const SizedBox(height: 10),
-
         _PriorityOption(
           priority: TaskPriority.medium,
           label: 'Medium',
           icon: Icons.remove_rounded,
-          selected:
-          selectedPriority == TaskPriority.medium,
+          selected: selectedPriority == TaskPriority.medium,
           onTap: () => onChanged(TaskPriority.medium),
-          isDark: isDark,
         ),
-
         const SizedBox(height: 10),
-
         _PriorityOption(
           priority: TaskPriority.high,
           label: 'High',
           icon: Icons.keyboard_arrow_up_rounded,
           selected: selectedPriority == TaskPriority.high,
           onTap: () => onChanged(TaskPriority.high),
-          isDark: isDark,
         ),
       ],
     );
@@ -86,7 +68,6 @@ class _PriorityOption extends StatelessWidget {
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
-  final bool isDark;
 
   const _PriorityOption({
     required this.priority,
@@ -94,24 +75,26 @@ class _PriorityOption extends StatelessWidget {
     required this.icon,
     required this.selected,
     required this.onTap,
-    required this.isDark,
   });
 
-  Color get _color {
+  Color _priorityColor(ColorScheme colorScheme) {
     switch (priority) {
       case TaskPriority.low:
-        return AppColors.success;
+        return colorScheme.tertiary;
 
       case TaskPriority.medium:
-        return AppColors.warning;
+        return colorScheme.secondary;
 
       case TaskPriority.high:
-        return AppColors.error;
+        return colorScheme.error;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = _priorityColor(colorScheme);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -126,20 +109,17 @@ class _PriorityOption extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: selected
-              ? _color.withValues(
-            alpha: isDark ? 0.14 : 0.07,
+              ? color.withValues(
+            alpha: 0.10,
           )
-              : isDark
-              ? AppColors.darkSurface
-              : AppColors.surface,
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
-                ? _color
-                : isDark
-                ? AppColors.darkTextSecondary
-                .withValues(alpha: 0.12)
-                : AppColors.border,
+                ? color
+                : colorScheme.outline.withValues(
+              alpha: 0.7,
+            ),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -149,20 +129,18 @@ class _PriorityOption extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: _color.withValues(
-                  alpha: isDark ? 0.16 : 0.10,
+                color: color.withValues(
+                  alpha: 0.10,
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: _color,
+                color: color,
                 size: 24,
               ),
             ),
-
             const SizedBox(width: 13),
-
             Expanded(
               child: Text(
                 label,
@@ -170,13 +148,10 @@ class _PriorityOption extends StatelessWidget {
                   fontWeight: selected
                       ? FontWeight.w700
                       : FontWeight.w500,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
-
             AnimatedSwitcher(
               duration: const Duration(
                 milliseconds: 180,
@@ -185,15 +160,13 @@ class _PriorityOption extends StatelessWidget {
                   ? Icon(
                 Icons.check_circle_rounded,
                 key: const ValueKey('selected'),
-                color: _color,
+                color: color,
                 size: 24,
               )
                   : Icon(
                 Icons.radio_button_unchecked_rounded,
                 key: const ValueKey('unselected'),
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 size: 22,
               ),
             ),

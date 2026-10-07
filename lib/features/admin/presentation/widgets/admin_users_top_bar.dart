@@ -15,8 +15,8 @@ class AdminUsersTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,13 +27,13 @@ class AdminUsersTopBar extends StatelessWidget {
               onPressed: onBack,
               tooltip: 'Back',
               style: IconButton.styleFrom(
-                backgroundColor: Theme.of(context).cardColor,
-                foregroundColor: AppColors.textPrimary,
+                backgroundColor: colorScheme.surface,
+                foregroundColor: colorScheme.onSurface,
                 fixedSize: const Size(44, 44),
                 side: BorderSide(
-                  color: isDark
-                      ? AppColors.darkSurface
-                      : AppColors.border,
+                  color: colorScheme.outline.withValues(
+                    alpha: 0.6,
+                  ),
                 ),
               ),
               icon: const Icon(
@@ -49,44 +49,52 @@ class AdminUsersTopBar extends StatelessWidget {
                 color: AppColors.primarySoft,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.people_alt_outlined,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 size: 22,
               ),
             ),
           ],
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Users',
-          style: AppTextStyles.display,
+          style: AppTextStyles.display.copyWith(
+            color: colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 7),
         Row(
           children: [
-            Text(
-              userCount == 0
-                  ? 'Manage your workspace members'
-                  : '$userCount '
-                  '${userCount == 1 ? 'member' : 'members'} '
-                  'in your workspace',
-              style: AppTextStyles.bodySecondary,
+            Expanded(
+              child: Text(
+                userCount == 0
+                    ? 'Manage your workspace members'
+                    : '$userCount '
+                    '${userCount == 1 ? 'member' : 'members'} '
+                    'in your workspace',
+                style: AppTextStyles.bodySecondary.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
             ),
             if (userCount > 0) ...[
               const SizedBox(width: 10),
               Container(
                 width: 5,
                 height: 5,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
+              Text(
                 'Workspace',
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class ProjectsErrorView extends StatelessWidget {
@@ -15,6 +14,9 @@ class ProjectsErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SliverFillRemaining(
       hasScrollBody: false,
       child: Padding(
@@ -24,10 +26,10 @@ class ProjectsErrorView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppColors.error.withValues(
+                color: colorScheme.error.withValues(
                   alpha: 0.25,
                 ),
               ),
@@ -39,36 +41,48 @@ class ProjectsErrorView extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(
-                      alpha: 0.1,
+                    color: colorScheme.error.withValues(
+                      alpha: 0.10,
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.error_outline_rounded,
-                    color: AppColors.error,
+                    color: colorScheme.error,
                     size: 30,
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 Text(
                   'Something went wrong',
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.title.copyWith(
-                    color: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.color,
+                    color: colorScheme.onSurface,
                   ),
                 ),
+
                 const SizedBox(height: 8),
+
                 Text(
                   message,
-                  style: AppTextStyles.bodySecondary,
+                  style: AppTextStyles.bodySecondary.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
+
                 const SizedBox(height: 20),
+
                 OutlinedButton.icon(
                   onPressed: onRetry,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colorScheme.primary,
+                    side: BorderSide(
+                      color: colorScheme.outline,
+                    ),
+                  ),
                   icon: const Icon(
                     Icons.refresh_rounded,
                   ),

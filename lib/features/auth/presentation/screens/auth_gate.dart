@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../home/presentation/screens/home_screen.dart';
 import '../../domain/entities/user_entity.dart';
 import '../providers/auth_provider.dart';
 import '../../../admin/presentation/screens/admin_dashboard_screen.dart';
-import 'home_screen.dart';
 import 'login_screen.dart';
 
 class AuthGate extends StatefulWidget {

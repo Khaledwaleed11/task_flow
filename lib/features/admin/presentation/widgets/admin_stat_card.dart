@@ -17,32 +17,38 @@ class AdminStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 16, 14, 15),
+      padding: const EdgeInsets.fromLTRB(
+        14,
+        16,
+        14,
+        15,
+      ),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isDark
-              ? AppColors.darkSurface
-              : AppColors.border,
+          color: colorScheme.outline.withValues(
+            alpha: 0.6,
+          ),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: AppColors.primarySoft,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: AppColors.primaryDark,
+              color: colorScheme.primary,
               size: 20,
             ),
           ),
@@ -51,9 +57,11 @@ class AdminStatCard extends StatelessWidget {
             value,
             style: AppTextStyles.headline.copyWith(
               fontSize: 23,
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 3),
           Text(
             label,
             maxLines: 1,
@@ -61,6 +69,7 @@ class AdminStatCard extends StatelessWidget {
             style: AppTextStyles.caption.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],

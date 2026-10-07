@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_text_styles.dart';
+
 class EmptyTasksView extends StatelessWidget {
-  const EmptyTasksView({
-    super.key,
-  });
+  const EmptyTasksView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,20 +11,11 @@ class EmptyTasksView extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 36,
-        horizontal: 24,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(
-          alpha: 0.04,
-        ),
+        color: colorScheme.primary.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.primary.withValues(
-            alpha: 0.1,
-          ),
-        ),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.10)),
       ),
       child: Column(
         children: [
@@ -32,9 +23,7 @@ class EmptyTasksView extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(
-                alpha: 0.1,
-              ),
+              color: colorScheme.primary.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -43,24 +32,20 @@ class EmptyTasksView extends StatelessWidget {
               color: colorScheme.primary,
             ),
           ),
-
           const SizedBox(height: 16),
-
-          const Text(
+          Text(
             'No tasks yet',
-            style: TextStyle(
+            style: AppTextStyles.title.copyWith(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             'Start adding tasks to track your project progress.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey.shade600,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
               height: 1.4,
             ),
           ),

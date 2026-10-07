@@ -18,10 +18,14 @@ class AdminOverviewMetric extends StatelessWidget {
         vertical: 13,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: Colors.white.withValues(
+          alpha: 0.10,
+        ),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: Colors.white.withValues(
+            alpha: 0.08,
+          ),
         ),
       ),
       child: Column(
@@ -32,15 +36,19 @@ class AdminOverviewMetric extends StatelessWidget {
               color: Colors.white,
               fontSize: 21,
               fontWeight: FontWeight.w800,
+              height: 1.1,
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.65),
+              color: Colors.white.withValues(
+                alpha: 0.68,
+              ),
               fontSize: 10,
               fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
             ),
           ),
         ],

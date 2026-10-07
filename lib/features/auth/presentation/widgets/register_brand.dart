@@ -7,17 +7,23 @@ class RegisterBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       children: [
         Container(
           width: 68,
           height: 68,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: colorScheme.primary,
             borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.22),
+                color: colorScheme.primary.withValues(
+                  alpha: isDark ? 0.14 : 0.22,
+                ),
                 blurRadius: 24,
                 offset: const Offset(0, 10),
               ),
@@ -30,12 +36,12 @@ class RegisterBrand extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'TaskFlow',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: colorScheme.onSurface,
             letterSpacing: -1,
           ),
         ),

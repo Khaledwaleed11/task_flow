@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin/presentation/providers/admin_user_provider.dart';
 
@@ -18,6 +17,9 @@ class EditTaskAssignmentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final usersById = <String, dynamic>{};
 
     for (final user in provider.assignableUsers) {
@@ -28,19 +30,16 @@ class EditTaskAssignmentSection extends StatelessWidget {
 
     final hasSelectedUser =
         selectedUserId != null &&
-            users.any(
-                  (user) => user.id == selectedUserId,
-            );
+        users.any((user) => user.id == selectedUserId);
 
-    final dropdownValue =
-    hasSelectedUser ? selectedUserId : null;
+    final dropdownValue = hasSelectedUser ? selectedUserId : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Assignment',
-          style: AppTextStyles.title,
+          style: AppTextStyles.title.copyWith(color: colorScheme.onSurface),
         ),
         const SizedBox(height: 10),
         DropdownButtonFormField<String?>(
@@ -48,63 +47,56 @@ class EditTaskAssignmentSection extends StatelessWidget {
           decoration: const InputDecoration(
             labelText: 'Assign to',
             hintText: 'Select a user',
-            prefixIcon: Icon(
-              Icons.person_outline_rounded,
-            ),
+            prefixIcon: Icon(Icons.person_outline_rounded),
           ),
           items: [
             const DropdownMenuItem<String?>(
               value: null,
               child: Text('No assignment'),
             ),
-            ...users.map(
-                  (user) {
-                return DropdownMenuItem<String?>(
-                  value: user.id,
-                  child: Text(
-                    user.email,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              },
-            ),
+            ...users.map((user) {
+              return DropdownMenuItem<String?>(
+                value: user.id,
+                child: Text(user.email, overflow: TextOverflow.ellipsis),
+              );
+            }),
           ],
-          onChanged: users.isNotEmpty
-              ? onChanged
-              : null,
+          onChanged: users.isNotEmpty ? onChanged : null,
         ),
         if (provider.status == AdminUserStatus.loading) ...[
           const SizedBox(height: 12),
-          const LinearProgressIndicator(
+          LinearProgressIndicator(
             minHeight: 2,
+            color: colorScheme.primary,
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.10),
           ),
         ],
         if (!provider.hasAssignableUsers &&
             provider.status == AdminUserStatus.loaded) ...[
           const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.warning.withValues(
-                alpha: 0.08,
-              ),
+              color: colorScheme.secondary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: colorScheme.secondary.withValues(alpha: 0.25),
+              ),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(
                   Icons.info_outline_rounded,
                   size: 17,
-                  color: AppColors.warning,
+                  color: colorScheme.secondary,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'No users are currently available for assignment.',
-                    style: AppTextStyles.caption,
+                    style: AppTextStyles.caption.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ],

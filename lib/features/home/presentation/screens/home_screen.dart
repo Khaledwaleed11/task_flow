@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../projects/domain/entities/project_entity.dart';
 import '../../../projects/presentation/providers/project_provider.dart';
 import '../../../projects/presentation/screens/create_project_screen.dart';
@@ -10,14 +12,13 @@ import '../../../projects/presentation/widgets/project_card.dart';
 import '../../../tasks/domain/entities/task_entity.dart';
 import '../../../tasks/presentation/providers/task_provider.dart';
 import '../../../tasks/presentation/widgets/task_card.dart';
-import '../../domain/entities/user_entity.dart';
-import '../providers/auth_provider.dart';
-import '../widgets/home_empty_projects.dart';
-import '../widgets/home_error_view.dart';
-import '../widgets/home_header.dart';
-import '../widgets/home_statistics_row.dart';
-import '../widgets/recent_projects_header.dart';
-import '../widgets/workspace_overview_card.dart';
+import '../../widgets/home_empty_projects.dart';
+import '../../widgets/home_error_view.dart';
+import '../../widgets/home_header.dart';
+import '../../widgets/home_statistics_row.dart';
+import '../../widgets/recent_projects_header.dart';
+import '../../widgets/workspace_overview_card.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -174,28 +175,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             projectProvider.status == ProjectStatus.failure)
                           HomeErrorView(
                             message:
-                                projectProvider.errorMessage ??
+                            projectProvider.errorMessage ??
                                 'Failed to load projects.',
                             onRetry: projectProvider.getProjects,
                           )
                         else if (isAdmin && projects.isEmpty)
-                          HomeEmptyProjects(onCreateProject: _openCreateProject)
-                        else if (isAdmin) ...[
-                          RecentProjectsHeader(onViewAll: _openProjects),
-                          const SizedBox(height: 12),
-                          ...recentProjects.map(
-                            (project) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: ProjectCard(
-                                project: project,
-                                showActions: false,
-                                onTap: () {
-                                  _openProjectDetails(project);
-                                },
+                            HomeEmptyProjects(onCreateProject: _openCreateProject)
+                          else if (isAdmin) ...[
+                              RecentProjectsHeader(onViewAll: _openProjects),
+                              const SizedBox(height: 12),
+                              ...recentProjects.map(
+                                    (project) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: ProjectCard(
+                                    project: project,
+                                    showActions: false,
+                                    onTap: () {
+                                      _openProjectDetails(project);
+                                    },
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
+                            ],
                       ]),
                     ),
                   ),
@@ -290,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ...visibleTasks.map((task) {
           final isActionLoading =
               taskProvider.actionTaskId == task.id &&
-              taskProvider.actionStatus == TaskActionStatus.loading;
+                  taskProvider.actionStatus == TaskActionStatus.loading;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),

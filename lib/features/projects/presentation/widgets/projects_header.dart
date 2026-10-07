@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class ProjectsHeader extends StatelessWidget {
@@ -13,6 +12,8 @@ class ProjectsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
@@ -26,43 +27,50 @@ class ProjectsHeader extends StatelessWidget {
                   Text(
                     'My Projects',
                     style: AppTextStyles.headline.copyWith(
-                      color: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.color,
+                      color: colorScheme.onSurface,
                     ),
                   ),
+
                   const SizedBox(height: 6),
+
                   Text(
                     'Manage your projects and keep your tasks organized.',
-                    style: AppTextStyles.bodySecondary,
+                    style: AppTextStyles.bodySecondary.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(width: 12),
+
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 8,
               ),
               decoration: BoxDecoration(
-                color: AppColors.primarySoft,
+                color: colorScheme.primary.withValues(
+                  alpha: 0.10,
+                ),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.folder_rounded,
                     size: 17,
-                    color: AppColors.primaryDark,
+                    color: colorScheme.primary,
                   ),
+
                   const SizedBox(width: 6),
+
                   Text(
                     '$projectCount',
-                    style: const TextStyle(
-                      color: AppColors.primaryDark,
+                    style: TextStyle(
+                      color: colorScheme.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),

@@ -20,6 +20,8 @@ class ProjectSubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: double.infinity,
       height: 54,
@@ -30,15 +32,15 @@ class ProjectSubmitButton extends StatelessWidget {
             milliseconds: 200,
           ),
           child: isLoading
-              ? const SizedBox(
-            key: ValueKey('loading'),
+              ? SizedBox(
+            key: const ValueKey('loading'),
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2.2,
               valueColor:
               AlwaysStoppedAnimation<Color>(
-                Colors.white,
+                colorScheme.onPrimary,
               ),
             ),
           )
@@ -56,7 +58,9 @@ class ProjectSubmitButton extends StatelessWidget {
             key: ValueKey(
               isLoading ? loadingLabel : label,
             ),
-            style: AppTextStyles.button,
+            style: AppTextStyles.button.copyWith(
+              color: colorScheme.onPrimary,
+            ),
           ),
         ),
       ),

@@ -12,58 +12,59 @@ class CreateTaskButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         child: AnimatedSwitcher(
-          duration: const Duration(
-            milliseconds: 200,
-          ),
+          duration: const Duration(milliseconds: 200),
           child: isLoading
-              ? const Row(
-            key: ValueKey('loading'),
-            mainAxisAlignment:
-            MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
+              ? Row(
+                  key: const ValueKey('loading'),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Creating...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  key: const ValueKey('button'),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_task_rounded,
+                      size: 22,
+                      color: colorScheme.onPrimary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Create Task',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Creating...',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          )
-              : const Row(
-            key: ValueKey('button'),
-            mainAxisAlignment:
-            MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_task_rounded,
-                size: 22,
-              ),
-              SizedBox(width: 8),
-              Text(
-                'Create Task',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class TasksErrorView extends StatelessWidget {
@@ -15,15 +14,15 @@ class TasksErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
@@ -31,12 +30,12 @@ class TasksErrorView extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.1),
+              color: colorScheme.error.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.error_outline_rounded,
-              color: AppColors.error,
+              color: colorScheme.error,
               size: 28,
             ),
           ),
@@ -45,19 +44,16 @@ class TasksErrorView extends StatelessWidget {
 
           Text(
             'Something went wrong',
-            style: AppTextStyles.title.copyWith(
-              color: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.color,
-            ),
+            style: AppTextStyles.title.copyWith(color: colorScheme.onSurface),
           ),
 
           const SizedBox(height: 6),
 
           Text(
             message,
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
 
@@ -65,6 +61,10 @@ class TasksErrorView extends StatelessWidget {
 
           OutlinedButton.icon(
             onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colorScheme.primary,
+              side: BorderSide(color: colorScheme.outline),
+            ),
             icon: const Icon(Icons.refresh_rounded),
             label: const Text('Try Again'),
           ),

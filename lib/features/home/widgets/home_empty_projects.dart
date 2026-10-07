@@ -10,17 +10,16 @@ class HomeEmptyProjects extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.border.withValues(alpha: isDarkMode ? 0.3 : 1),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.6)),
       ),
       child: Column(
         children: [
@@ -42,16 +41,16 @@ class HomeEmptyProjects extends StatelessWidget {
 
           Text(
             'No projects yet',
-            style: AppTextStyles.title.copyWith(
-              color: Theme.of(context).textTheme.titleLarge?.color,
-            ),
+            style: AppTextStyles.title.copyWith(color: colorScheme.onSurface),
           ),
 
           const SizedBox(height: 6),
 
-          const Text(
+          Text(
             'Create your first project to start managing your tasks.',
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
 

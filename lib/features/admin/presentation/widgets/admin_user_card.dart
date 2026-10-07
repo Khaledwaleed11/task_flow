@@ -16,19 +16,22 @@ class AdminUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final isAdmin = user.role == UserRole.admin;
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
 
     final name = user.name.trim().isEmpty
         ? 'Unnamed User'
         : user.name.trim();
 
-    final initial =
-    name.isNotEmpty ? name[0].toUpperCase() : '?';
+    final initial = name.isNotEmpty
+        ? name[0].toUpperCase()
+        : '?';
 
-    final roleColor =
-    isAdmin ? AppColors.primary : AppColors.success;
+    final roleColor = isAdmin
+        ? colorScheme.primary
+        : AppColors.success;
 
     final imageUrl =
         user.profileImageUrl?.trim() ?? '';
@@ -38,12 +41,12 @@ class AdminUserCard extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: isDark
-                ? AppColors.darkSurface
-                : AppColors.border,
+            color: colorScheme.outline.withValues(
+              alpha: 0.6,
+            ),
           ),
         ),
         child: Row(
@@ -54,7 +57,7 @@ class AdminUserCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isAdmin
                     ? AppColors.primarySoft
-                    : AppColors.background,
+                    : colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(17),
               ),
               child: ClipRRect(
@@ -90,11 +93,10 @@ class AdminUserCard extends StatelessWidget {
                         child: Text(
                           name,
                           maxLines: 1,
-                          overflow:
-                          TextOverflow.ellipsis,
-                          style:
-                          AppTextStyles.title.copyWith(
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.title.copyWith(
                             fontSize: 15,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -107,22 +109,20 @@ class AdminUserCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.email_outlined,
                         size: 14,
-                        color: AppColors.textTertiary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           user.email,
                           maxLines: 1,
-                          overflow:
-                          TextOverflow.ellipsis,
-                          style:
-                          AppTextStyles.bodySecondary
-                              .copyWith(
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodySecondary.copyWith(
                             fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class EditTaskSectionLabel extends StatelessWidget {
@@ -17,6 +16,8 @@ class EditTaskSectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -24,14 +25,10 @@ class EditTaskSectionLabel extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.primarySoft,
+            color: colorScheme.primary.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-            size: 20,
-          ),
+          child: Icon(icon, color: colorScheme.primary, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -42,12 +39,15 @@ class EditTaskSectionLabel extends StatelessWidget {
                 title,
                 style: AppTextStyles.title.copyWith(
                   fontSize: 15,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

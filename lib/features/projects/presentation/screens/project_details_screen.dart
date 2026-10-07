@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/dependency_injection/injection_container.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin/presentation/providers/admin_user_provider.dart';
 import '../../../projects/domain/entities/project_entity.dart';
 import '../../../tasks/presentation/providers/task_provider.dart';
@@ -88,9 +86,15 @@ class _ProjectDetailsView extends StatelessWidget {
     TaskProvider provider,
     dynamic task,
   ) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
+        final dialogTheme = Theme.of(dialogContext);
+        final dialogColors = dialogTheme.colorScheme;
+
         return AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           title: Row(
@@ -99,25 +103,33 @@ class _ProjectDetailsView extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.08),
+                  color: dialogColors.error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.delete_outline_rounded,
-                  color: AppColors.error,
+                  color: dialogColors.error,
                   size: 23,
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
-                child: Text('Delete Task', style: AppTextStyles.title),
+              Expanded(
+                child: Text(
+                  'Delete Task',
+                  style: dialogTheme.textTheme.titleLarge?.copyWith(
+                    color: dialogColors.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
           ),
           content: Text(
             'Are you sure you want to delete "${task.title}"? '
             'This action cannot be undone.',
-            style: AppTextStyles.bodySecondary,
+            style: dialogTheme.textTheme.bodyMedium?.copyWith(
+              color: dialogColors.onSurfaceVariant,
+            ),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 18),
           actions: [
@@ -125,13 +137,19 @@ class _ProjectDetailsView extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(dialogContext, false);
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: dialogColors.primary),
+              ),
             ),
             FilledButton.icon(
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
-              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              style: FilledButton.styleFrom(
+                backgroundColor: dialogColors.error,
+                foregroundColor: dialogColors.onError,
+              ),
               icon: const Icon(Icons.delete_outline_rounded, size: 18),
               label: const Text('Delete'),
             ),
@@ -153,19 +171,19 @@ class _ProjectDetailsView extends StatelessWidget {
       return;
     }
 
+    final snackBarColor = success ? colorScheme.tertiary : colorScheme.error;
+
+    final snackBarIcon = success
+        ? Icons.check_circle_outline_rounded
+        : Icons.error_outline_rounded;
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           content: Row(
             children: [
-              Icon(
-                success
-                    ? Icons.check_circle_outline_rounded
-                    : Icons.error_outline_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
+              Icon(snackBarIcon, color: colorScheme.onInverseSurface, size: 20),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -176,7 +194,7 @@ class _ProjectDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          backgroundColor: success ? AppColors.success : AppColors.error,
+          backgroundColor: snackBarColor,
         ),
       );
   }
@@ -193,6 +211,7 @@ class _ProjectDetailsView extends StatelessWidget {
         return Scaffold(
           body: SafeArea(
             child: RefreshIndicator(
+              color: Theme.of(context).colorScheme.primary,
               onRefresh: () {
                 return provider.getTasks(projectId: project.id);
               },
@@ -270,6 +289,8 @@ class _ProjectDetailsView extends StatelessWidget {
                 : () {
                     _openCreateTask(context, provider);
                   },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
             icon: const Icon(Icons.add_task_rounded),
             label: const Text('Add Task'),
           ),

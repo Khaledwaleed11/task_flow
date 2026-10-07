@@ -12,12 +12,19 @@ abstract final class AppTheme {
         ).copyWith(
           primary: AppColors.primary,
           onPrimary: Colors.white,
-          secondary: AppColors.primaryDark,
+
+          secondary: AppColors.warning,
           onSecondary: Colors.white,
+
+          tertiary: AppColors.success,
+          onTertiary: Colors.white,
+
           surface: AppColors.surface,
           onSurface: AppColors.textPrimary,
+
           error: AppColors.error,
           onError: Colors.white,
+
           outline: AppColors.border,
           outlineVariant: AppColors.divider,
         );
@@ -114,37 +121,46 @@ abstract final class AppTheme {
           vertical: 17,
         ),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.border),
         ),
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.border),
         ),
+
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
         ),
+
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error),
         ),
+
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 1.6),
         ),
+
         labelStyle: const TextStyle(
           color: AppColors.textSecondary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+
         floatingLabelStyle: const TextStyle(
           color: AppColors.primary,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
+
         hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
+
         prefixIconColor: AppColors.textSecondary,
         suffixIconColor: AppColors.textSecondary,
       ),
@@ -162,6 +178,7 @@ abstract final class AppTheme {
             borderSide: const BorderSide(color: AppColors.border),
           ),
         ),
+
         menuStyle: MenuStyle(
           backgroundColor: const WidgetStatePropertyAll(AppColors.surface),
           elevation: const WidgetStatePropertyAll(8),
@@ -308,12 +325,19 @@ abstract final class AppTheme {
         ).copyWith(
           primary: AppColors.primary,
           onPrimary: Colors.white,
-          secondary: AppColors.primaryDark,
+
+          secondary: AppColors.warning,
           onSecondary: Colors.white,
+
+          tertiary: AppColors.success,
+          onTertiary: Colors.white,
+
           surface: AppColors.darkSurface,
           onSurface: AppColors.darkTextPrimary,
+
           error: AppColors.error,
           onError: Colors.white,
+
           outline: AppColors.darkCard,
           outlineVariant: AppColors.darkCard,
         );
@@ -412,40 +436,49 @@ abstract final class AppTheme {
           horizontal: 18,
           vertical: 17,
         ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
+
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
         ),
+
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error),
         ),
+
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 1.6),
         ),
+
         labelStyle: const TextStyle(
           color: AppColors.darkTextSecondary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+
         floatingLabelStyle: const TextStyle(
           color: AppColors.primary,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
+
         hintStyle: const TextStyle(
           color: AppColors.darkTextSecondary,
           fontSize: 14,
         ),
+
         prefixIconColor: AppColors.darkTextSecondary,
         suffixIconColor: AppColors.darkTextSecondary,
       ),
@@ -535,7 +568,7 @@ abstract final class AppTheme {
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.darkCard,
         elevation: 8,
-        contentTextStyle: const TextStyle(
+        contentTextStyle: TextStyle(
           color: AppColors.darkTextPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w500,

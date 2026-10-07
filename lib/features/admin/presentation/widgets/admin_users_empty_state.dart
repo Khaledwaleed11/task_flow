@@ -8,6 +8,8 @@ class AdminUsersEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -15,10 +17,12 @@ class AdminUsersEmptyState extends StatelessWidget {
         vertical: 48,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.border,
+          color: colorScheme.outline.withValues(
+            alpha: 0.6,
+          ),
         ),
       ),
       child: Column(
@@ -30,22 +34,26 @@ class AdminUsersEmptyState extends StatelessWidget {
               color: AppColors.primarySoft,
               borderRadius: BorderRadius.circular(23),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.people_outline_rounded,
-              color: AppColors.primary,
+              color: colorScheme.primary,
               size: 35,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'No users found',
-            style: AppTextStyles.title,
+            style: AppTextStyles.title.copyWith(
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 7),
-          const Text(
+          Text(
             'There are no registered users in your workspace yet.',
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

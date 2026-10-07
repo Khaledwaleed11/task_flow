@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-
 class ProfileInfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -16,6 +14,9 @@ class ProfileInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final displayValue =
     value.trim().isEmpty ? 'Not available' : value;
 
@@ -23,10 +24,12 @@ class ProfileInfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).dividerColor,
+          color: colorScheme.outline.withValues(
+            alpha: 0.7,
+          ),
         ),
       ),
       child: Row(
@@ -35,34 +38,38 @@ class ProfileInfoCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.primarySoft,
+              color: colorScheme.primary.withValues(
+                alpha: 0.10,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
           ),
+
           const SizedBox(width: 14),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.color,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
+
                 const SizedBox(height: 4),
+
                 Text(
                   displayValue,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

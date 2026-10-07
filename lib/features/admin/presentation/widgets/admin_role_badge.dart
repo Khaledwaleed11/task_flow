@@ -12,19 +12,24 @@ class AdminRoleBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-    isAdmin ? AppColors.primary : AppColors.success;
+    final color = isAdmin
+        ? AppColors.primary
+        : AppColors.success;
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 8,
+        horizontal: 9,
         vertical: 5,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withValues(
+          alpha: 0.10,
+        ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withValues(alpha: 0.12),
+          color: color.withValues(
+            alpha: 0.16,
+          ),
         ),
       ),
       child: Text(
@@ -33,6 +38,7 @@ class AdminRoleBadge extends StatelessWidget {
           color: color,
           fontSize: 9.5,
           fontWeight: FontWeight.w800,
+          letterSpacing: 0.15,
         ),
       ),
     );

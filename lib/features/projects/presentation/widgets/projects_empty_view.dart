@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class ProjectsEmptyView extends StatelessWidget {
@@ -10,6 +9,9 @@ class ProjectsEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SliverFillRemaining(
       hasScrollBody: false,
       child: Padding(
@@ -21,31 +23,37 @@ class ProjectsEmptyView extends StatelessWidget {
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: AppColors.primarySoft,
+                color: colorScheme.primary.withValues(
+                  alpha: 0.10,
+                ),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.folder_open_rounded,
                 size: 38,
-                color: AppColors.primary,
+                color: colorScheme.primary,
               ),
             ),
+
             const SizedBox(height: 20),
+
             Text(
               'No projects yet',
+              textAlign: TextAlign.center,
               style: AppTextStyles.title.copyWith(
                 fontSize: 20,
-                color: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.color,
+                color: colorScheme.onSurface,
               ),
             ),
+
             const SizedBox(height: 8),
-            const Text(
+
+            Text(
               'Create your first project and start organizing your tasks.',
-              style: AppTextStyles.bodySecondary,
               textAlign: TextAlign.center,
+              style: AppTextStyles.bodySecondary.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

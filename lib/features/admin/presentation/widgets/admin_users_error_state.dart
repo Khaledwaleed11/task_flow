@@ -15,6 +15,8 @@ class AdminUsersErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -22,10 +24,12 @@ class AdminUsersErrorState extends StatelessWidget {
         vertical: 42,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.18),
+          color: AppColors.error.withValues(
+            alpha: 0.20,
+          ),
         ),
       ),
       child: Column(
@@ -34,7 +38,9 @@ class AdminUsersErrorState extends StatelessWidget {
             width: 62,
             height: 62,
             decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.08),
+              color: AppColors.error.withValues(
+                alpha: 0.08,
+              ),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -44,15 +50,19 @@ class AdminUsersErrorState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
+          Text(
             'Unable to load users',
-            style: AppTextStyles.title,
+            style: AppTextStyles.title.copyWith(
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 7),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 20),
           SizedBox(

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/dependency_injection/injection_container.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../tasks/presentation/providers/task_provider.dart';
 import '../../domain/entities/project_entity.dart';
 import '../providers/project_provider.dart';
@@ -63,6 +61,9 @@ class _ProjectsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: SafeArea(
         child: Consumer2<ProjectProvider, TaskProvider>(
@@ -75,6 +76,7 @@ class _ProjectsView extends StatelessWidget {
                 await projectProvider.getProjects();
                 taskProvider.watchAllTasks();
               },
+              color: colorScheme.primary,
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
@@ -97,11 +99,16 @@ class _ProjectsView extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   if (projectProvider.status == ProjectStatus.loading ||
                       taskProvider.status == TaskStatus.loading)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       hasScrollBody: false,
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: colorScheme.primary,
+                        ),
+                      ),
                     )
                   else if (projectProvider.status == ProjectStatus.failure ||
                       taskProvider.status == TaskStatus.failure)
@@ -211,6 +218,8 @@ class _ProjectsView extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
           );
         },
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         icon: const Icon(Icons.add_rounded),
         label: const Text('New Project'),
       ),
@@ -224,9 +233,15 @@ class _ProjectsScreenActions {
     ProjectProvider provider,
     ProjectEntity project,
   ) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
+        final dialogTheme = Theme.of(dialogContext);
+        final dialogColors = dialogTheme.colorScheme;
+
         return AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           title: Row(
@@ -235,25 +250,33 @@ class _ProjectsScreenActions {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.08),
+                  color: dialogColors.error.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.delete_outline_rounded,
-                  color: AppColors.error,
+                  color: dialogColors.error,
                   size: 23,
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
-                child: Text('Delete Project', style: AppTextStyles.title),
+              Expanded(
+                child: Text(
+                  'Delete Project',
+                  style: dialogTheme.textTheme.titleMedium?.copyWith(
+                    color: dialogColors.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
           ),
           content: Text(
             'Are you sure you want to delete "${project.name}"? '
             'This action cannot be undone.',
-            style: AppTextStyles.bodySecondary,
+            style: dialogTheme.textTheme.bodyMedium?.copyWith(
+              color: dialogColors.onSurfaceVariant,
+            ),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 18),
           actions: [
@@ -261,13 +284,19 @@ class _ProjectsScreenActions {
               onPressed: () {
                 Navigator.of(dialogContext).pop(false);
               },
+              style: TextButton.styleFrom(
+                foregroundColor: dialogColors.onSurfaceVariant,
+              ),
               child: const Text('Cancel'),
             ),
             FilledButton.icon(
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              style: FilledButton.styleFrom(
+                backgroundColor: dialogColors.error,
+                foregroundColor: dialogColors.onError,
+              ),
               icon: const Icon(Icons.delete_outline_rounded, size: 18),
               label: const Text('Delete'),
             ),
@@ -296,7 +325,7 @@ class _ProjectsScreenActions {
                 success
                     ? Icons.check_circle_outline_rounded
                     : Icons.error_outline_rounded,
-                color: Colors.white,
+                color: colorScheme.onInverseSurface,
                 size: 20,
               ),
               const SizedBox(width: 10),
@@ -309,7 +338,7 @@ class _ProjectsScreenActions {
               ),
             ],
           ),
-          backgroundColor: success ? AppColors.success : AppColors.error,
+          backgroundColor: success ? colorScheme.primary : colorScheme.error,
         ),
       );
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin/presentation/providers/admin_user_provider.dart';
 import '../../domain/entities/task_entity.dart';
@@ -141,21 +140,28 @@ class _EditTaskScreenState extends State<EditTaskScreen>
 
     final message = provider.actionErrorMessage ?? 'Failed to update task';
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
           content: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.error_outline_rounded,
-                color: Colors.white,
+                color: colorScheme.onError,
                 size: 20,
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(message)),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(color: colorScheme.onError),
+                ),
+              ),
             ],
           ),
         ),
@@ -165,10 +171,8 @@ class _EditTaskScreenState extends State<EditTaskScreen>
   @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
-
     final userProvider = context.watch<AdminUserProvider>();
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: SafeArea(
@@ -196,17 +200,18 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+                            color: colorScheme.surface,
                             borderRadius: BorderRadius.circular(26),
                             border: Border.all(
-                              color: isDark
-                                  ? AppColors.darkSurface
-                                  : AppColors.border,
+                              color: colorScheme.outline.withValues(alpha: 0.7),
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(
-                                  alpha: isDark ? 0.1 : 0.025,
+                                  alpha:
+                                      colorScheme.brightness == Brightness.dark
+                                      ? 0.10
+                                      : 0.025,
                                 ),
                                 blurRadius: 30,
                                 offset: const Offset(0, 14),
@@ -231,7 +236,9 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   '${_descriptionController.text.length}/500',
-                                  style: AppTextStyles.caption,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ],
@@ -243,12 +250,10 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+                            color: colorScheme.surface,
                             borderRadius: BorderRadius.circular(26),
                             border: Border.all(
-                              color: isDark
-                                  ? AppColors.darkSurface
-                                  : AppColors.border,
+                              color: colorScheme.outline.withValues(alpha: 0.7),
                             ),
                           ),
                           child: Column(
@@ -296,27 +301,29 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: AppColors.primarySoft.withValues(
-                              alpha: isDark ? 0.08 : 0.55,
-                            ),
+                            color: colorScheme.primary.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(22),
                             border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.1),
+                              color: colorScheme.primary.withValues(
+                                alpha: 0.12,
+                              ),
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(
                                 Icons.info_outline_rounded,
-                                color: AppColors.primary,
+                                color: colorScheme.primary,
                                 size: 20,
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   'Task completion is managed by the assigned user and cannot be changed here.',
-                                  style: AppTextStyles.bodySecondary,
+                                  style: AppTextStyles.bodySecondary.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ],
@@ -335,16 +342,17 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.lock_outline_rounded,
                               size: 14,
-                              color: AppColors.textTertiary,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 6),
                             Text(
                               'Your task changes are securely stored.',
                               style: AppTextStyles.caption.copyWith(
                                 fontSize: 10.5,
+                                color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],

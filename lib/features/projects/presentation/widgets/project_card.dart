@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/project_entity.dart';
 
@@ -30,7 +29,8 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     final displayTotalTasks = totalTasks ?? project.totalTasks;
 
@@ -55,10 +55,10 @@ class ProjectCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: Ink(
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isDark ? AppColors.darkSurface : AppColors.border,
+              color: colorScheme.outline.withValues(alpha: 0.6),
             ),
           ),
           child: Padding(
@@ -73,16 +73,18 @@ class ProjectCard extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.primarySoft,
+                        color: colorScheme.primary.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.folder_rounded,
-                        color: AppColors.primary,
+                        color: colorScheme.primary,
                         size: 24,
                       ),
                     ),
+
                     const SizedBox(width: 14),
+
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,6 +96,7 @@ class ProjectCard extends StatelessWidget {
                             style: AppTextStyles.title.copyWith(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 5),
@@ -106,18 +109,20 @@ class ProjectCard extends StatelessWidget {
                             style: AppTextStyles.bodySecondary.copyWith(
                               fontSize: 12.5,
                               height: 1.4,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
                       ),
                     ),
+
                     if (showActions)
                       PopupMenuButton<String>(
                         tooltip: 'Project actions',
                         padding: EdgeInsets.zero,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.more_horiz_rounded,
-                          color: AppColors.textSecondary,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         onSelected: (value) {
                           if (value == 'edit') {
@@ -129,14 +134,23 @@ class ProjectCard extends StatelessWidget {
                           }
                         },
                         itemBuilder: (context) {
-                          return const [
+                          return [
                             PopupMenuItem<String>(
                               value: 'edit',
                               child: Row(
                                 children: [
-                                  Icon(Icons.edit_outlined, size: 20),
-                                  SizedBox(width: 12),
-                                  Text('Edit'),
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 20,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Edit',
+                                    style: TextStyle(
+                                      color: colorScheme.onSurface,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -147,10 +161,13 @@ class ProjectCard extends StatelessWidget {
                                   Icon(
                                     Icons.delete_outline_rounded,
                                     size: 20,
-                                    color: AppColors.error,
+                                    color: colorScheme.error,
                                   ),
-                                  SizedBox(width: 12),
-                                  Text('Delete'),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Delete',
+                                    style: TextStyle(color: colorScheme.error),
+                                  ),
                                 ],
                               ),
                             ),
@@ -159,13 +176,15 @@ class ProjectCard extends StatelessWidget {
                       ),
                   ],
                 ),
+
                 const SizedBox(height: 22),
+
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.darkBackground
-                        : AppColors.background,
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.55,
+                    ),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Row(
@@ -173,37 +192,37 @@ class ProjectCard extends StatelessWidget {
                       Expanded(
                         child: _ProjectMetric(
                           icon: Icons.task_alt_rounded,
-                          iconColor: AppColors.success,
+                          iconColor: colorScheme.tertiary,
                           value: '$displayCompletedTasks',
                           label: 'Completed',
                         ),
                       ),
+
                       Container(
                         width: 1,
                         height: 36,
-                        color: isDark
-                            ? AppColors.darkSurface
-                            : AppColors.divider,
+                        color: colorScheme.outline.withValues(alpha: 0.45),
                       ),
+
                       Expanded(
                         child: _ProjectMetric(
                           icon: Icons.pending_actions_rounded,
-                          iconColor: AppColors.warning,
+                          iconColor: colorScheme.secondary,
                           value: '$displayPendingTasks',
                           label: 'Pending',
                         ),
                       ),
+
                       Container(
                         width: 1,
                         height: 36,
-                        color: isDark
-                            ? AppColors.darkSurface
-                            : AppColors.divider,
+                        color: colorScheme.outline.withValues(alpha: 0.45),
                       ),
+
                       Expanded(
                         child: _ProjectMetric(
                           icon: Icons.checklist_rounded,
-                          iconColor: AppColors.primary,
+                          iconColor: colorScheme.primary,
                           value: '$displayTotalTasks',
                           label: 'Total',
                         ),
@@ -211,7 +230,9 @@ class ProjectCard extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 Row(
                   children: [
                     Text(
@@ -219,22 +240,25 @@ class ProjectCard extends StatelessWidget {
                       style: AppTextStyles.bodySecondary.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
+
                     const Spacer(),
+
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 9,
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primarySoft,
+                        color: colorScheme.primary.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(9),
                       ),
                       child: Text(
                         '$percentage%',
-                        style: const TextStyle(
-                          color: AppColors.primaryDark,
+                        style: TextStyle(
+                          color: colorScheme.primary,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                         ),
@@ -242,46 +266,53 @@ class ProjectCard extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 11),
+
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
                     value: safeProgress,
                     minHeight: 8,
-                    backgroundColor: AppColors.primarySoft,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppColors.primary,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      colorScheme.primary,
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.schedule_rounded,
                       size: 15,
-                      color: AppColors.textTertiary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 6),
+
                     Expanded(
                       child: Text(
                         _formatDate(project.updatedAt),
-                        style: AppTextStyles.caption.copyWith(fontSize: 11),
+                        style: AppTextStyles.caption.copyWith(
+                          fontSize: 11,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
+
                     Container(
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkSurface
-                            : AppColors.background,
+                        color: colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_forward_rounded,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -318,6 +349,8 @@ class _ProjectMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -334,6 +367,7 @@ class _ProjectMetric extends StatelessWidget {
                 style: AppTextStyles.title.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 1),
@@ -341,7 +375,10 @@ class _ProjectMetric extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(fontSize: 9.5),
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 9.5,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

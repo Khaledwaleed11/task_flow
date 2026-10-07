@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/task_entity.dart';
 
@@ -24,7 +23,7 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
       color: Colors.transparent,
@@ -33,10 +32,10 @@ class TaskCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         child: Ink(
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: isDark ? AppColors.darkSurface : AppColors.border,
+              color: colorScheme.outline.withValues(alpha: 0.7),
             ),
           ),
           child: Padding(
@@ -47,17 +46,13 @@ class TaskCard extends StatelessWidget {
                 _TaskStatusIndicator(
                   task: task,
                   isActionLoading: isActionLoading,
-                  isDark: isDark,
                   onToggle: onToggle,
                 ),
                 const SizedBox(width: 14),
-                Expanded(
-                  child: _TaskContent(task: task, isDark: isDark),
-                ),
+                Expanded(child: _TaskContent(task: task)),
                 if (showActions) ...[
                   const SizedBox(width: 8),
                   _TaskMenu(
-                    isDark: isDark,
                     isEnabled: !isActionLoading,
                     onEdit: onEdit,
                     onDelete: onDelete,
@@ -75,31 +70,35 @@ class TaskCard extends StatelessWidget {
 class _TaskStatusIndicator extends StatelessWidget {
   final TaskEntity task;
   final bool isActionLoading;
-  final bool isDark;
   final VoidCallback? onToggle;
 
   const _TaskStatusIndicator({
     required this.task,
     required this.isActionLoading,
-    required this.isDark,
     required this.onToggle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (isActionLoading) {
-      return const SizedBox(
+      return SizedBox(
         width: 27,
         height: 27,
         child: Padding(
-          padding: EdgeInsets.all(3),
+          padding: const EdgeInsets.all(3),
           child: CircularProgressIndicator(
             strokeWidth: 2.5,
-            color: AppColors.primary,
+            color: colorScheme.primary,
           ),
         ),
       );
     }
+
+    final statusColor = task.isCompleted
+        ? colorScheme.tertiary
+        : colorScheme.onSurfaceVariant;
 
     return GestureDetector(
       onTap: onToggle,
@@ -110,20 +109,13 @@ class _TaskStatusIndicator extends StatelessWidget {
         width: 27,
         height: 27,
         decoration: BoxDecoration(
-          color: task.isCompleted ? AppColors.success : Colors.transparent,
+          color: task.isCompleted ? colorScheme.tertiary : Colors.transparent,
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: task.isCompleted
-                ? AppColors.success
-                : isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textTertiary,
-            width: 2,
-          ),
+          border: Border.all(color: statusColor, width: 2),
           boxShadow: task.isCompleted
               ? [
                   BoxShadow(
-                    color: AppColors.success.withValues(alpha: 0.18),
+                    color: colorScheme.tertiary.withValues(alpha: 0.18),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -133,10 +125,10 @@ class _TaskStatusIndicator extends StatelessWidget {
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 180),
           child: task.isCompleted
-              ? const Icon(
+              ? Icon(
                   Icons.check_rounded,
-                  key: ValueKey('completed'),
-                  color: Colors.white,
+                  key: const ValueKey('completed'),
+                  color: colorScheme.onTertiary,
                   size: 18,
                 )
               : const SizedBox(key: ValueKey('pending')),
@@ -148,23 +140,18 @@ class _TaskStatusIndicator extends StatelessWidget {
 
 class _TaskContent extends StatelessWidget {
   final TaskEntity task;
-  final bool isDark;
 
-  const _TaskContent({required this.task, required this.isDark});
+  const _TaskContent({required this.task});
 
   @override
   Widget build(BuildContext context) {
-    final titleColor = task.isCompleted
-        ? isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.textTertiary
-        : isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.textPrimary;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    final secondaryColor = isDark
-        ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
+    final titleColor = task.isCompleted
+        ? colorScheme.onSurfaceVariant
+        : colorScheme.onSurface;
+
+    final secondaryColor = colorScheme.onSurfaceVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,9 +190,7 @@ class _TaskContent extends StatelessWidget {
               fontSize: 12.5,
               height: 1.45,
               color: task.isCompleted
-                  ? isDark
-                        ? AppColors.darkTextSecondary.withValues(alpha: 0.6)
-                        : AppColors.textTertiary
+                  ? colorScheme.onSurfaceVariant.withValues(alpha: 0.6)
                   : secondaryColor,
               decoration: task.isCompleted
                   ? TextDecoration.lineThrough
@@ -219,16 +204,13 @@ class _TaskContent extends StatelessWidget {
             _MetaItem(
               icon: Icons.calendar_today_outlined,
               label: _formatDate(task.createdAt),
-              isDark: isDark,
             ),
             const SizedBox(width: 12),
             Container(
               width: 4,
               height: 4,
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 shape: BoxShape.circle,
               ),
             ),
@@ -248,34 +230,28 @@ class _TaskContent extends StatelessWidget {
 class _MetaItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final bool isDark;
 
-  const _MetaItem({
-    required this.icon,
-    required this.label,
-    required this.isDark,
-  });
+  const _MetaItem({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Flexible(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 13,
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textTertiary,
-          ),
+          Icon(icon, size: 13, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 5),
           Flexible(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(fontSize: 10.5),
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 10.5,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -291,7 +267,9 @@ class _StatusLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isCompleted ? AppColors.success : AppColors.warning;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final color = isCompleted ? colorScheme.tertiary : colorScheme.secondary;
 
     return Flexible(
       child: Row(
@@ -322,13 +300,11 @@ class _StatusLabel extends StatelessWidget {
 }
 
 class _TaskMenu extends StatelessWidget {
-  final bool isDark;
   final bool isEnabled;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const _TaskMenu({
-    required this.isDark,
     required this.isEnabled,
     required this.onEdit,
     required this.onDelete,
@@ -336,14 +312,13 @@ class _TaskMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return PopupMenuButton<String>(
       tooltip: 'Task actions',
       enabled: isEnabled,
       padding: EdgeInsets.zero,
-      icon: Icon(
-        Icons.more_horiz_rounded,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-      ),
+      icon: Icon(Icons.more_horiz_rounded, color: colorScheme.onSurfaceVariant),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 8,
       onSelected: (value) {
@@ -358,27 +333,31 @@ class _TaskMenu extends StatelessWidget {
       },
       itemBuilder: (context) {
         return [
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'edit',
             child: Row(
               children: [
-                Icon(Icons.edit_outlined, size: 19),
-                SizedBox(width: 11),
-                Text('Edit'),
+                Icon(
+                  Icons.edit_outlined,
+                  size: 19,
+                  color: colorScheme.onSurface,
+                ),
+                const SizedBox(width: 11),
+                Text('Edit', style: TextStyle(color: colorScheme.onSurface)),
               ],
             ),
           ),
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'delete',
             child: Row(
               children: [
                 Icon(
                   Icons.delete_outline_rounded,
                   size: 19,
-                  color: AppColors.error,
+                  color: colorScheme.error,
                 ),
-                SizedBox(width: 11),
-                Text('Delete'),
+                const SizedBox(width: 11),
+                Text('Delete', style: TextStyle(color: colorScheme.error)),
               ],
             ),
           ),
@@ -395,12 +374,13 @@ class _PriorityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _priorityColor();
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = _priorityColor(colorScheme);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(9),
         border: Border.all(color: color.withValues(alpha: 0.12)),
       ),
@@ -426,14 +406,14 @@ class _PriorityBadge extends StatelessWidget {
     );
   }
 
-  Color _priorityColor() {
+  Color _priorityColor(ColorScheme colorScheme) {
     switch (priority) {
       case TaskPriority.low:
-        return AppColors.success;
+        return colorScheme.tertiary;
       case TaskPriority.medium:
-        return AppColors.warning;
+        return colorScheme.secondary;
       case TaskPriority.high:
-        return AppColors.error;
+        return colorScheme.error;
     }
   }
 

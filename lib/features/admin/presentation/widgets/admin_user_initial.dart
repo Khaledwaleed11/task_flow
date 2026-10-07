@@ -19,6 +19,7 @@ class AdminUserInitial extends StatelessWidget {
           color: roleColor,
           fontSize: 19,
           fontWeight: FontWeight.w800,
+          height: 1,
         ),
       ),
     );

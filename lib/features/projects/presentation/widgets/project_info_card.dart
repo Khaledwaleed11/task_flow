@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../projects/domain/entities/project_entity.dart';
 
 class ProjectInfoCard extends StatelessWidget {
   final ProjectEntity project;
 
-  const ProjectInfoCard({
-    super.key,
-    required this.project,
-  });
+  const ProjectInfoCard({super.key, required this.project});
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/'
@@ -20,27 +16,22 @@ class ProjectInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.border.withValues(
-            alpha: Theme.of(context).brightness == Brightness.dark
-                ? 0.3
-                : 1,
-          ),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.7)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Project Information',
-            style: AppTextStyles.title.copyWith(
-              color: Theme.of(context).textTheme.titleLarge?.color,
-            ),
+            style: AppTextStyles.title.copyWith(color: colorScheme.onSurface),
           ),
 
           const SizedBox(height: 18),
@@ -91,8 +82,7 @@ class _InfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Row(
       children: [
@@ -100,16 +90,10 @@ class _InfoItem extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.primary.withValues(alpha: 0.15)
-                : AppColors.primarySoft,
+            color: colorScheme.primary.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(
-            Icons.info_outline_rounded,
-            color: AppColors.primary,
-            size: 20,
-          ),
+          child: Icon(icon, color: colorScheme.primary, size: 20),
         ),
 
         const SizedBox(width: 12),
@@ -120,17 +104,16 @@ class _InfoItem extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 3),
               Text(
                 value,
                 style: AppTextStyles.body.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.color,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],

@@ -33,15 +33,15 @@ class TaskStatisticsCard extends StatelessWidget {
     if (totalTasks == 0) {
       status = 'Not Started';
       statusIcon = Icons.radio_button_unchecked_rounded;
-      statusColor = Colors.grey;
+      statusColor = colorScheme.onSurfaceVariant;
     } else if (completedTasks == totalTasks) {
       status = 'Completed';
       statusIcon = Icons.check_circle_rounded;
-      statusColor = Colors.green;
+      statusColor = colorScheme.tertiary;
     } else {
       status = 'In Progress';
       statusIcon = Icons.timelapse_rounded;
-      statusColor = Colors.orange;
+      statusColor = colorScheme.secondary;
     }
 
     return Card(
@@ -52,10 +52,14 @@ class TaskStatisticsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Project Progress',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 Container(
@@ -64,7 +68,7 @@ class TaskStatisticsCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
+                    color: statusColor.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -85,15 +89,11 @@ class TaskStatisticsCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
-
             Row(
               children: [
                 _ProgressRing(progress: progress, color: colorScheme.primary),
-
                 const SizedBox(width: 24),
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,15 +106,13 @@ class TaskStatisticsCard extends StatelessWidget {
                           color: colorScheme.primary,
                         ),
                       ),
-
                       const SizedBox(height: 4),
-
                       Text(
                         totalTasks == 0
                             ? 'No tasks created yet'
                             : '$completedTasks of $totalTasks tasks completed',
                         style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurfaceVariant,
                           height: 1.4,
                         ),
                       ),
@@ -123,9 +121,7 @@ class TaskStatisticsCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
-
             Row(
               children: [
                 Expanded(
@@ -135,9 +131,7 @@ class TaskStatisticsCard extends StatelessWidget {
                     value: totalTasks.toString(),
                   ),
                 ),
-
                 const _VerticalDivider(),
-
                 Expanded(
                   child: _StatisticItem(
                     icon: Icons.check_circle_outline_rounded,
@@ -145,9 +139,7 @@ class TaskStatisticsCard extends StatelessWidget {
                     value: completedTasks.toString(),
                   ),
                 ),
-
                 const _VerticalDivider(),
-
                 Expanded(
                   child: _StatisticItem(
                     icon: Icons.pending_actions_rounded,
@@ -172,6 +164,8 @@ class _ProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 92,
       height: 92,
@@ -184,10 +178,12 @@ class _ProgressRing extends StatelessWidget {
             child: CircularProgressIndicator(
               value: 1,
               strokeWidth: 9,
-              backgroundColor: Colors.grey.withValues(alpha: 0.08),
+              backgroundColor: colorScheme.onSurfaceVariant.withValues(
+                alpha: 0.08,
+              ),
+              color: colorScheme.surfaceContainerHighest,
             ),
           ),
-
           SizedBox(
             width: 92,
             height: 92,
@@ -198,7 +194,6 @@ class _ProgressRing extends StatelessWidget {
               color: color,
             ),
           ),
-
           Icon(
             progress == 1 ? Icons.check_rounded : Icons.flag_rounded,
             size: 24,
@@ -223,22 +218,24 @@ class _StatisticItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
-        Icon(icon, size: 21, color: Colors.grey.shade600),
-
+        Icon(icon, size: 21, color: colorScheme.onSurfaceVariant),
         const SizedBox(height: 7),
-
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
         ),
-
         const SizedBox(height: 2),
-
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -250,10 +247,12 @@ class _VerticalDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: 1,
       height: 42,
-      color: Colors.grey.withValues(alpha: 0.15),
+      color: colorScheme.outline.withValues(alpha: 0.15),
     );
   }
 }

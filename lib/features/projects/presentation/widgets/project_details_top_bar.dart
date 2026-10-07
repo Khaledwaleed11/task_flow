@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class ProjectDetailsTopBar extends StatelessWidget {
@@ -13,8 +12,7 @@ class ProjectDetailsTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Row(
       children: [
@@ -22,13 +20,16 @@ class ProjectDetailsTopBar extends StatelessWidget {
           onPressed: onBack,
           tooltip: 'Back',
           style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).cardColor,
-            foregroundColor: AppColors.textPrimary,
+            backgroundColor: colorScheme.surface,
+            foregroundColor: colorScheme.onSurface,
             fixedSize: const Size(44, 44),
             side: BorderSide(
-              color: isDark
-                  ? AppColors.darkSurface
-                  : AppColors.border,
+              color: colorScheme.outline.withValues(
+                alpha: 0.7,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
           icon: const Icon(
@@ -36,10 +37,14 @@ class ProjectDetailsTopBar extends StatelessWidget {
             size: 20,
           ),
         ),
+
         const SizedBox(width: 12),
-        const Text(
+
+        Text(
           'Project Overview',
-          style: AppTextStyles.title,
+          style: AppTextStyles.title.copyWith(
+            color: colorScheme.onSurface,
+          ),
         ),
       ],
     );

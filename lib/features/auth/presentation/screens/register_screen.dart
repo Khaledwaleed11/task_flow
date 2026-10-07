@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_divider.dart';
 import '../widgets/register_back_button.dart';
@@ -51,13 +52,15 @@ class _RegisterScreenState extends State<RegisterScreen>
       curve: Curves.easeOut,
     );
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     _animationController.forward();
   }
@@ -94,7 +97,9 @@ class _RegisterScreenState extends State<RegisterScreen>
       return 'Please enter your email.';
     }
 
-    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    final emailRegex = RegExp(
+      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+    );
 
     if (!emailRegex.hasMatch(email)) {
       return 'Please enter a valid email.';
@@ -160,7 +165,8 @@ class _RegisterScreenState extends State<RegisterScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(
-            authProvider.errorMessage ?? 'Failed to create account.',
+            authProvider.errorMessage ??
+                'Failed to create account.',
           ),
           backgroundColor: AppColors.error,
         ),
@@ -185,7 +191,9 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: Stack(
@@ -223,9 +231,16 @@ class _RegisterScreenState extends State<RegisterScreen>
               builder: (context, authProvider, child) {
                 return Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+                    padding: const EdgeInsets.fromLTRB(
+                      20,
+                      20,
+                      20,
+                      28,
+                    ),
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 470),
+                      constraints: const BoxConstraints(
+                        maxWidth: 470,
+                      ),
                       child: SlideTransition(
                         position: _slideAnimation,
                         child: FadeTransition(
@@ -233,9 +248,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                           child: Form(
                             key: _formKey,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.stretch,
                               children: [
-                                RegisterBackButton(onPressed: _backToLogin),
+                                RegisterBackButton(
+                                  onPressed: _backToLogin,
+                                ),
                                 const SizedBox(height: 24),
                                 const RegisterBrand(),
                                 const SizedBox(height: 38),
@@ -244,36 +262,72 @@ class _RegisterScreenState extends State<RegisterScreen>
                                 RegisterFormCard(
                                   nameController: _nameController,
                                   emailController: _emailController,
-                                  passwordController: _passwordController,
+                                  passwordController:
+                                  _passwordController,
                                   confirmPasswordController:
-                                      _confirmPasswordController,
-                                  obscurePassword: _obscurePassword,
+                                  _confirmPasswordController,
+                                  obscurePassword:
+                                  _obscurePassword,
                                   obscureConfirmPassword:
-                                      _obscureConfirmPassword,
-                                  isLoading: authProvider.isLoading,
-                                  nameValidator: _validateName,
-                                  emailValidator: _validateEmail,
-                                  passwordValidator: _validatePassword,
+                                  _obscureConfirmPassword,
+                                  isLoading:
+                                  authProvider.isLoading,
+                                  nameValidator:
+                                  _validateName,
+                                  emailValidator:
+                                  _validateEmail,
+                                  passwordValidator:
+                                  _validatePassword,
                                   confirmPasswordValidator:
-                                      _validateConfirmPassword,
-                                  onTogglePassword: _togglePasswordVisibility,
+                                  _validateConfirmPassword,
+                                  onTogglePassword:
+                                  _togglePasswordVisibility,
                                   onToggleConfirmPassword:
-                                      _toggleConfirmPasswordVisibility,
+                                  _toggleConfirmPasswordVisibility,
                                   onSubmit: _register,
                                 ),
                                 const SizedBox(height: 24),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      'Already have an account?',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
+                                    Flexible(
+                                      child: Text(
+                                        'Already have an account?',
+                                        style: AppTextStyles
+                                            .bodySecondary
+                                            .copyWith(
+                                          color: colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                      ),
                                     ),
+                                    const SizedBox(width: 4),
                                     TextButton(
                                       onPressed: _backToLogin,
-                                      child: const Text('Sign In'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor:
+                                        colorScheme.primary,
+                                        padding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 4,
+                                        ),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                        MaterialTapTargetSize
+                                            .shrinkWrap,
+                                      ),
+                                      child: Text(
+                                        'Sign In',
+                                        style: TextStyle(
+                                          color:
+                                          colorScheme.primary,
+                                          fontWeight:
+                                          FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),

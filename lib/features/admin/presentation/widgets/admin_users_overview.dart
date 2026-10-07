@@ -15,6 +15,9 @@ class AdminUsersOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final adminCount = provider.users
         .where((user) => user.role == UserRole.admin)
         .length;
@@ -37,7 +40,9 @@ class AdminUsersOverview extends StatelessWidget {
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.18),
+            color: AppColors.primary.withValues(
+              alpha: isDark ? 0.12 : 0.18,
+            ),
             blurRadius: 28,
             offset: const Offset(0, 14),
           ),
@@ -52,7 +57,9 @@ class AdminUsersOverview extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
+                  color: Colors.white.withValues(
+                    alpha: 0.14,
+                  ),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(

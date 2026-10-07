@@ -13,7 +13,8 @@ class AdminManagementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Material(
       color: Colors.transparent,
@@ -23,12 +24,12 @@ class AdminManagementCard extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: isDark
-                  ? AppColors.darkSurface
-                  : AppColors.border,
+              color: colorScheme.outline.withValues(
+                alpha: 0.6,
+              ),
             ),
           ),
           child: Row(
@@ -40,42 +41,45 @@ class AdminManagementCard extends StatelessWidget {
                   color: AppColors.primarySoft,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.people_alt_outlined,
-                  color: AppColors.primaryDark,
+                  color: colorScheme.primary,
                   size: 25,
                 ),
               ),
               const SizedBox(width: 15),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Manage Users',
-                      style: AppTextStyles.title,
+                      style: AppTextStyles.title.copyWith(
+                        color: colorScheme.onSurface,
+                      ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'View registered users and manage access.',
-                      style: AppTextStyles.bodySecondary,
+                      style: AppTextStyles.bodySecondary.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
               Container(
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.darkSurface
-                      : AppColors.background,
+                  color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward_rounded,
                   size: 19,
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

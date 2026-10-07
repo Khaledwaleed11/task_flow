@@ -25,7 +25,8 @@ class AdminDashboardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     final name = user?.name?.toString().trim() ?? '';
     final email = user?.email?.toString().trim() ?? '';
@@ -55,10 +56,16 @@ class AdminDashboardHeader extends StatelessWidget {
                 imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) {
-                  return _buildInitial(initial);
+                  return _buildInitial(
+                    context,
+                    initial,
+                  );
                 },
               )
-                  : _buildInitial(initial),
+                  : _buildInitial(
+                context,
+                initial,
+              ),
             ),
           ),
         ),
@@ -70,6 +77,7 @@ class AdminDashboardHeader extends StatelessWidget {
               Text(
                 'Admin Workspace',
                 style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.3,
                 ),
@@ -80,6 +88,7 @@ class AdminDashboardHeader extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.title.copyWith(
+                  color: colorScheme.onSurface,
                   fontSize: 18,
                 ),
               ),
@@ -89,9 +98,7 @@ class AdminDashboardHeader extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.caption.copyWith(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.textTertiary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
             ],
@@ -101,13 +108,13 @@ class AdminDashboardHeader extends StatelessWidget {
           onPressed: () => _openProfile(context),
           tooltip: 'Profile',
           style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).cardColor,
-            foregroundColor: AppColors.textSecondary,
+            backgroundColor: colorScheme.surface,
+            foregroundColor: colorScheme.onSurfaceVariant,
             fixedSize: const Size(46, 46),
             side: BorderSide(
-              color: isDark
-                  ? AppColors.darkSurface
-                  : AppColors.border,
+              color: colorScheme.outline.withValues(
+                alpha: 0.6,
+              ),
             ),
           ),
           icon: const Icon(
@@ -116,17 +123,19 @@ class AdminDashboardHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-
       ],
     );
   }
 
-  Widget _buildInitial(String initial) {
+  Widget _buildInitial(
+      BuildContext context,
+      String initial,
+      ) {
     return Center(
       child: Text(
         initial,
-        style: const TextStyle(
-          color: AppColors.primaryDark,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
           fontSize: 18,
           fontWeight: FontWeight.w800,
         ),

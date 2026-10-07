@@ -7,6 +7,8 @@ class RegisterWelcomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         Text(
@@ -15,6 +17,7 @@ class RegisterWelcomeHeader extends StatelessWidget {
           style: AppTextStyles.display.copyWith(
             fontSize: 30,
             letterSpacing: -0.8,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -23,6 +26,7 @@ class RegisterWelcomeHeader extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppTextStyles.bodySecondary.copyWith(
             fontSize: 14,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ],

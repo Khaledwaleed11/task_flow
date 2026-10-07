@@ -3,18 +3,23 @@ import 'package:provider/provider.dart';
 
 import '../core/dependency_injection/injection_container.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/theme_provider.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/projects/presentation/providers/project_provider.dart';
 import '../features/tasks/presentation/providers/task_provider.dart';
 
 class TaskFlowApp extends StatelessWidget {
-  const TaskFlowApp({super.key});
+  final ThemeProvider themeProvider;
+
+  const TaskFlowApp({super.key, required this.themeProvider});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: themeProvider),
+
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
             loginUseCase: sl(),
@@ -23,6 +28,7 @@ class TaskFlowApp extends StatelessWidget {
             getCurrentUserUseCase: sl(),
           ),
         ),
+
         ChangeNotifierProvider(
           create: (_) => ProjectProvider(
             createProjectUseCase: sl(),
@@ -32,6 +38,7 @@ class TaskFlowApp extends StatelessWidget {
             watchProjectsUseCase: sl(),
           ),
         ),
+
         ChangeNotifierProvider(
           create: (_) => TaskProvider(
             createTaskUseCase: sl(),
@@ -44,13 +51,17 @@ class TaskFlowApp extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'TaskFlow',
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.light,
-        home: const SplashScreen(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'TaskFlow',
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: themeProvider.themeMode,
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }

@@ -65,21 +65,19 @@ class _StatisticCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 16,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: AppColors.border.withValues(
-            alpha: Theme.of(context).brightness ==
-                Brightness.dark
-                ? 0.3
-                : 1,
-          ),
+          color: colorScheme.outline.withValues(alpha: 0.6),
         ),
       ),
       child: Column(
@@ -94,16 +92,15 @@ class _StatisticCard extends StatelessWidget {
             value,
             style: AppTextStyles.title.copyWith(
               fontSize: 20,
-              color: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.color,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 3),
           Text(
             label,
-            style: AppTextStyles.caption,
+            style: AppTextStyles.caption.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

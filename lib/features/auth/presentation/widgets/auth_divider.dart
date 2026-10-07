@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class AuthDivider extends StatelessWidget {
@@ -13,16 +12,16 @@ class AuthDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Row(
       children: [
         Expanded(
           child: Divider(
-            color: isDark
-                ? AppColors.darkCard
-                : AppColors.divider,
+            color: colorScheme.outline.withValues(
+              alpha: 0.55,
+            ),
+            thickness: 1,
           ),
         ),
         Padding(
@@ -32,6 +31,7 @@ class AuthDivider extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.caption.copyWith(
+              color: colorScheme.onSurfaceVariant,
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.8,
@@ -40,9 +40,10 @@ class AuthDivider extends StatelessWidget {
         ),
         Expanded(
           child: Divider(
-            color: isDark
-                ? AppColors.darkCard
-                : AppColors.divider,
+            color: colorScheme.outline.withValues(
+              alpha: 0.55,
+            ),
+            thickness: 1,
           ),
         ),
       ],

@@ -15,13 +15,18 @@ class HomeErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
+        border: Border.all(
+          color: AppColors.error.withValues(alpha: 0.25),
+        ),
       ),
       child: Column(
         children: [
@@ -34,13 +39,15 @@ class HomeErrorView extends StatelessWidget {
           Text(
             'Could not load projects',
             style: AppTextStyles.title.copyWith(
-              color: Theme.of(context).textTheme.titleLarge?.color,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             message,
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 14),

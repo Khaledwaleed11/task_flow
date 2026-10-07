@@ -12,29 +12,34 @@ class RecentProjectsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Expanded(
           child: Text(
             'Recent Projects',
             style: AppTextStyles.title.copyWith(
-              color: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.color,
+              color: colorScheme.onSurface,
             ),
           ),
         ),
         TextButton(
           onPressed: onViewAll,
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('View All'),
-              SizedBox(width: 4),
+              Text(
+                'View All',
+                style: TextStyle(
+                  color: colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 4),
               Icon(
                 Icons.arrow_forward_rounded,
                 size: 17,
+                color: colorScheme.primary,
               ),
             ],
           ),

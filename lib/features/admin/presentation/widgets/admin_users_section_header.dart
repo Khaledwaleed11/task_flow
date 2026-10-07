@@ -7,17 +7,23 @@ class AdminUsersSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'All Members',
-          style: AppTextStyles.headline,
+          style: AppTextStyles.headline.copyWith(
+            color: colorScheme.onSurface,
+          ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           'People with access to your workspace',
-          style: AppTextStyles.caption,
+          style: AppTextStyles.caption.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

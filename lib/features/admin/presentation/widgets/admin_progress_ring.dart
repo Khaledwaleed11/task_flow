@@ -10,6 +10,8 @@ class AdminProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safePercentage = percentage.clamp(0, 100);
+
     return SizedBox(
       width: 82,
       height: 82,
@@ -20,7 +22,7 @@ class AdminProgressRing extends StatelessWidget {
             width: 82,
             height: 82,
             child: CircularProgressIndicator(
-              value: percentage / 100,
+              value: safePercentage / 100,
               strokeWidth: 6,
               backgroundColor: Colors.white.withValues(
                 alpha: 0.14,
@@ -34,7 +36,7 @@ class AdminProgressRing extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '$percentage%',
+                '$safePercentage%',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,

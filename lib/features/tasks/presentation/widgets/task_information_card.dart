@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class TaskInformationCard extends StatelessWidget {
@@ -15,6 +14,8 @@ class TaskInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -23,6 +24,7 @@ class TaskInformationCard extends StatelessWidget {
           style: AppTextStyles.body.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 9),
@@ -37,12 +39,12 @@ class TaskInformationCard extends StatelessWidget {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: AppColors.primarySoft,
+                color: colorScheme.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.task_alt_outlined,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 size: 18,
               ),
             ),
@@ -65,6 +67,7 @@ class TaskInformationCard extends StatelessWidget {
           style: AppTextStyles.body.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 9),
@@ -75,11 +78,11 @@ class TaskInformationCard extends StatelessWidget {
           maxLength: 500,
           textCapitalization: TextCapitalization.sentences,
           textInputAction: TextInputAction.newline,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Describe what needs to be done...',
             alignLabelWithHint: true,
             prefixIcon: Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 left: 13,
                 right: 13,
                 bottom: 72,
@@ -87,7 +90,7 @@ class TaskInformationCard extends StatelessWidget {
               ),
               child: Icon(
                 Icons.description_outlined,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 size: 20,
               ),
             ),
@@ -97,16 +100,18 @@ class TaskInformationCard extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.info_outline_rounded,
               size: 15,
-              color: AppColors.textTertiary,
+              color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
                 'Keep the task description clear and actionable.',
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -114,6 +119,7 @@ class TaskInformationCard extends StatelessWidget {
               '${descriptionController.text.length}/500',
               style: AppTextStyles.caption.copyWith(
                 fontWeight: FontWeight.w600,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],

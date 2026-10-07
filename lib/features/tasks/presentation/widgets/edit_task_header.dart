@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class EditTaskHeader extends StatelessWidget {
   final VoidCallback onBack;
 
-  const EditTaskHeader({
-    super.key,
-    required this.onBack,
-  });
+  const EditTaskHeader({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -23,47 +20,37 @@ class EditTaskHeader extends StatelessWidget {
           onPressed: onBack,
           tooltip: 'Back',
           style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).cardColor,
-            foregroundColor: AppColors.textPrimary,
+            backgroundColor: colorScheme.surface,
+            foregroundColor: colorScheme.onSurface,
             fixedSize: const Size(44, 44),
-            side: BorderSide(
-              color: isDark
-                  ? AppColors.darkSurface
-                  : AppColors.border,
-            ),
+            side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.7)),
           ),
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            size: 20,
-          ),
+          icon: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
         const SizedBox(width: 14),
         Container(
           width: 54,
           height: 54,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                AppColors.primary,
-                AppColors.primaryDark,
-              ],
+            gradient: LinearGradient(
+              colors: [colorScheme.primary, colorScheme.primaryContainer],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(17),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(
-                  alpha: 0.20,
+                color: colorScheme.primary.withValues(
+                  alpha: isDark ? 0.14 : 0.20,
                 ),
                 blurRadius: 16,
                 offset: const Offset(0, 7),
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.edit_note_rounded,
-            color: Colors.white,
+            color: colorScheme.onPrimary,
             size: 27,
           ),
         ),
@@ -75,9 +62,7 @@ class EditTaskHeader extends StatelessWidget {
               Text(
                 'Edit task',
                 style: AppTextStyles.headline.copyWith(
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 4),
@@ -86,9 +71,7 @@ class EditTaskHeader extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodySecondary.copyWith(
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

@@ -18,6 +18,8 @@ class AdminSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -29,12 +31,15 @@ class AdminSectionHeader extends StatelessWidget {
                 title,
                 style: AppTextStyles.headline.copyWith(
                   fontSize: 21,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: AppTextStyles.caption,
+                style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -42,6 +47,9 @@ class AdminSectionHeader extends StatelessWidget {
         if (actionLabel != null)
           TextButton(
             onPressed: onAction,
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.primary,
+            ),
             child: Text(actionLabel!),
           ),
       ],

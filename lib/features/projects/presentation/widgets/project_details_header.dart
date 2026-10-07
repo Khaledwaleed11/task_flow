@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../projects/domain/entities/project_entity.dart';
 
 class ProjectDetailsHeader extends StatelessWidget {
@@ -25,14 +24,19 @@ class ProjectDetailsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final progressPercentage = (progress * 100).round();
+
+    final heroTextColor = colorScheme.onPrimary;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
+        gradient: LinearGradient(
+          colors: [colorScheme.primary, colorScheme.primaryContainer],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -47,12 +51,12 @@ class ProjectDetailsHeader extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: heroTextColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.folder_rounded,
-                  color: Colors.white,
+                  color: heroTextColor,
                   size: 28,
                 ),
               ),
@@ -65,13 +69,13 @@ class ProjectDetailsHeader extends StatelessWidget {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: heroTextColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
                   '$progressPercentage% Complete',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: heroTextColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -84,8 +88,8 @@ class ProjectDetailsHeader extends StatelessWidget {
 
           Text(
             project.name,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: heroTextColor,
               fontSize: 26,
               fontWeight: FontWeight.w700,
               height: 1.2,
@@ -97,7 +101,7 @@ class ProjectDetailsHeader extends StatelessWidget {
             Text(
               project.description,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
+                color: heroTextColor.withValues(alpha: 0.8),
                 fontSize: 14,
                 height: 1.5,
               ),
@@ -114,10 +118,8 @@ class ProjectDetailsHeader extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 7,
-                    backgroundColor: Colors.white.withValues(alpha: 0.15),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.white,
-                    ),
+                    backgroundColor: heroTextColor.withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation<Color>(heroTextColor),
                   ),
                 ),
               ),
@@ -126,8 +128,8 @@ class ProjectDetailsHeader extends StatelessWidget {
 
               Text(
                 '$progressPercentage%',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: heroTextColor,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),

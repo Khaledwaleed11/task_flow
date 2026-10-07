@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/task_entity.dart';
 
@@ -16,92 +15,58 @@ class EditTaskPrioritySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Priority',
-          style: AppTextStyles.title.copyWith(
-            color: isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.textPrimary,
-          ),
+          style: AppTextStyles.title.copyWith(color: colorScheme.onSurface),
         ),
-
         const SizedBox(height: 6),
-
         Text(
           'Choose how important this task is.',
-          style:
-          AppTextStyles.bodySecondary.copyWith(
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
+          style: AppTextStyles.bodySecondary.copyWith(
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
-
         const SizedBox(height: 14),
-
         Row(
           children: [
             Expanded(
               child: _PriorityOption(
                 priority: TaskPriority.low,
                 label: 'Low',
-                icon:
-                Icons.keyboard_arrow_down_rounded,
-                selected:
-                selectedPriority ==
-                    TaskPriority.low,
+                icon: Icons.keyboard_arrow_down_rounded,
+                selected: selectedPriority == TaskPriority.low,
                 onTap: () {
-                  onChanged(
-                    TaskPriority.low,
-                  );
+                  onChanged(TaskPriority.low);
                 },
-                isDark: isDark,
               ),
             ),
-
             const SizedBox(width: 10),
-
             Expanded(
               child: _PriorityOption(
                 priority: TaskPriority.medium,
                 label: 'Medium',
                 icon: Icons.remove_rounded,
-                selected:
-                selectedPriority ==
-                    TaskPriority.medium,
+                selected: selectedPriority == TaskPriority.medium,
                 onTap: () {
-                  onChanged(
-                    TaskPriority.medium,
-                  );
+                  onChanged(TaskPriority.medium);
                 },
-                isDark: isDark,
               ),
             ),
-
             const SizedBox(width: 10),
-
             Expanded(
               child: _PriorityOption(
                 priority: TaskPriority.high,
                 label: 'High',
-                icon:
-                Icons.keyboard_arrow_up_rounded,
-                selected:
-                selectedPriority ==
-                    TaskPriority.high,
+                icon: Icons.keyboard_arrow_up_rounded,
+                selected: selectedPriority == TaskPriority.high,
                 onTap: () {
-                  onChanged(
-                    TaskPriority.high,
-                  );
+                  onChanged(TaskPriority.high);
                 },
-                isDark: isDark,
               ),
             ),
           ],
@@ -117,7 +82,6 @@ class _PriorityOption extends StatelessWidget {
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
-  final bool isDark;
 
   const _PriorityOption({
     required this.priority,
@@ -125,52 +89,41 @@ class _PriorityOption extends StatelessWidget {
     required this.icon,
     required this.selected,
     required this.onTap,
-    required this.isDark,
   });
 
-  Color get _color {
+  Color _getColor(ColorScheme colorScheme) {
     switch (priority) {
       case TaskPriority.low:
-        return AppColors.success;
+        return colorScheme.tertiary;
 
       case TaskPriority.medium:
-        return AppColors.warning;
+        return colorScheme.secondary;
 
       case TaskPriority.high:
-        return AppColors.error;
+        return colorScheme.error;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final priorityColor = _getColor(colorScheme);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
-        duration: const Duration(
-          milliseconds: 180,
-        ),
-        padding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 8,
-        ),
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
           color: selected
-              ? _color.withValues(
-            alpha: isDark ? 0.14 : 0.07,
-          )
-              : isDark
-              ? AppColors.darkSurface
-              : AppColors.surface,
-          borderRadius:
-          BorderRadius.circular(16),
+              ? priorityColor.withValues(alpha: 0.10)
+              : colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
-                ? _color
-                : isDark
-                ? AppColors.darkTextSecondary
-                .withValues(alpha: 0.12)
-                : AppColors.border,
+                ? priorityColor
+                : colorScheme.outline.withValues(alpha: 0.7),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -178,24 +131,14 @@ class _PriorityOption extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: selected
-                  ? _color
-                  : isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
+              color: selected ? priorityColor : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 6),
             Text(
               label,
               style: AppTextStyles.caption.copyWith(
-                fontWeight: selected
-                    ? FontWeight.w700
-                    : FontWeight.w500,
-                color: selected
-                    ? _color
-                    : isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.textSecondary,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? priorityColor : colorScheme.onSurfaceVariant,
               ),
             ),
           ],

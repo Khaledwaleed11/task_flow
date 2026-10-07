@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../tasks/presentation/providers/task_provider.dart';
 
@@ -11,6 +10,8 @@ class TaskStatisticsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Expanded(
@@ -18,7 +19,7 @@ class TaskStatisticsCard extends StatelessWidget {
             icon: Icons.checklist_rounded,
             label: 'Total',
             value: '${provider.tasks.length}',
-            iconColor: AppColors.info,
+            iconColor: colorScheme.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -27,7 +28,7 @@ class TaskStatisticsCard extends StatelessWidget {
             icon: Icons.check_circle_rounded,
             label: 'Completed',
             value: '${provider.completedTasksCount}',
-            iconColor: AppColors.success,
+            iconColor: colorScheme.tertiary,
           ),
         ),
         const SizedBox(width: 12),
@@ -36,7 +37,7 @@ class TaskStatisticsCard extends StatelessWidget {
             icon: Icons.pending_actions_rounded,
             label: 'Pending',
             value: '${provider.pendingTasksCount}',
-            iconColor: AppColors.warning,
+            iconColor: colorScheme.secondary,
           ),
         ),
       ],
@@ -59,16 +60,14 @@ class _StatisticItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppColors.border.withValues(
-            alpha: Theme.of(context).brightness == Brightness.dark ? 0.3 : 1,
-          ),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.7)),
       ),
       child: Column(
         children: [
@@ -80,7 +79,7 @@ class _StatisticItem extends StatelessWidget {
             value,
             style: AppTextStyles.title.copyWith(
               fontSize: 20,
-              color: Theme.of(context).textTheme.titleLarge?.color,
+              color: colorScheme.onSurface,
             ),
           ),
 
@@ -88,7 +87,9 @@ class _StatisticItem extends StatelessWidget {
 
           Text(
             label,
-            style: AppTextStyles.caption,
+            style: AppTextStyles.caption.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

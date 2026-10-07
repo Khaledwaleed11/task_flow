@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'app/app.dart';
 import 'core/dependency_injection/injection_container.dart';
+import 'core/theme/theme_provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -14,7 +15,13 @@ Future<void> main() async {
 
   await initializeDependencies();
 
+  final themeProvider = ThemeProvider();
+
+  await themeProvider.loadTheme();
+
   runApp(
-    const TaskFlowApp(),
+    TaskFlowApp(
+      themeProvider: themeProvider,
+    ),
   );
 }

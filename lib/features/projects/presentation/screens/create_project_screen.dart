@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/project_provider.dart';
 import '../widgets/project_form_header.dart';
@@ -60,6 +59,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
   @override
   void dispose() {
     _nameController.dispose();
+
     _descriptionController
       ..removeListener(_onDescriptionChanged)
       ..dispose();
@@ -101,13 +101,15 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
       return;
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (success) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(
-            content: Text('Project created successfully'),
-            backgroundColor: AppColors.success,
+          SnackBar(
+            content: const Text('Project created successfully'),
+            backgroundColor: colorScheme.tertiary,
           ),
         );
 
@@ -120,14 +122,16 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(provider.errorMessage ?? 'Failed to create project'),
-          backgroundColor: AppColors.error,
+          backgroundColor: colorScheme.error,
         ),
       );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
@@ -162,17 +166,17 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
                             Container(
                               padding: const EdgeInsets.all(22),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
+                                color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(26),
                                 border: Border.all(
-                                  color: isDark
-                                      ? AppColors.darkSurface
-                                      : AppColors.border,
+                                  color: colorScheme.outline.withValues(
+                                    alpha: isDark ? 0.55 : 0.7,
+                                  ),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(
-                                      alpha: isDark ? 0.1 : 0.025,
+                                      alpha: isDark ? 0.10 : 0.025,
                                     ),
                                     blurRadius: 30,
                                     offset: const Offset(0, 14),
@@ -188,32 +192,41 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
                                         width: 42,
                                         height: 42,
                                         decoration: BoxDecoration(
-                                          color: AppColors.primarySoft,
+                                          color: colorScheme.primary.withValues(
+                                            alpha: 0.10,
+                                          ),
                                           borderRadius: BorderRadius.circular(
                                             13,
                                           ),
                                         ),
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.folder_outlined,
-                                          color: AppColors.primary,
+                                          color: colorScheme.primary,
                                           size: 21,
                                         ),
                                       ),
                                       const SizedBox(width: 12),
-                                      const Expanded(
+                                      Expanded(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Project information',
-                                              style: AppTextStyles.title,
+                                              style: AppTextStyles.title
+                                                  .copyWith(
+                                                    color:
+                                                        colorScheme.onSurface,
+                                                  ),
                                             ),
-                                            SizedBox(height: 3),
+                                            const SizedBox(height: 3),
                                             Text(
                                               'Add the basic details for your workspace.',
-                                              style:
-                                                  AppTextStyles.bodySecondary,
+                                              style: AppTextStyles.bodySecondary
+                                                  .copyWith(
+                                                    color: colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
                                             ),
                                           ],
                                         ),
@@ -237,7 +250,9 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                       '${_descriptionController.text.length}/500',
-                                      style: AppTextStyles.caption,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 22),
@@ -258,14 +273,13 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
                                 Icon(
                                   Icons.lock_outline_rounded,
                                   size: 14,
-                                  color: isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.textTertiary,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
                                   'Your project data is securely stored.',
                                   style: AppTextStyles.caption.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -293,7 +307,7 @@ class _CreateProjectTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Row(
       children: [
@@ -301,17 +315,21 @@ class _CreateProjectTopBar extends StatelessWidget {
           onPressed: onBack,
           tooltip: 'Back',
           style: IconButton.styleFrom(
-            backgroundColor: Theme.of(context).cardColor,
-            foregroundColor: AppColors.textPrimary,
+            backgroundColor: colorScheme.surface,
+            foregroundColor: colorScheme.onSurface,
             fixedSize: const Size(44, 44),
-            side: BorderSide(
-              color: isDark ? AppColors.darkSurface : AppColors.border,
-            ),
+            side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.7)),
           ),
           icon: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
         const SizedBox(width: 12),
-        Text('New Project', style: AppTextStyles.title.copyWith(fontSize: 17)),
+        Text(
+          'New Project',
+          style: AppTextStyles.title.copyWith(
+            fontSize: 17,
+            color: colorScheme.onSurface,
+          ),
+        ),
       ],
     );
   }

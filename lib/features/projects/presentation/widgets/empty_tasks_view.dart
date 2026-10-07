@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class EmptyTasksView extends StatelessWidget {
@@ -10,6 +9,8 @@ class EmptyTasksView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -17,13 +18,11 @@ class EmptyTasksView extends StatelessWidget {
         vertical: 36,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.border.withValues(
-            alpha: Theme.of(context).brightness == Brightness.dark
-                ? 0.3
-                : 1,
+          color: colorScheme.outline.withValues(
+            alpha: 0.7,
           ),
         ),
       ),
@@ -33,12 +32,14 @@ class EmptyTasksView extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppColors.primarySoft,
+              color: colorScheme.primary.withValues(
+                alpha: 0.10,
+              ),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.task_alt_rounded,
-              color: AppColors.primary,
+              color: colorScheme.primary,
               size: 32,
             ),
           ),
@@ -48,18 +49,17 @@ class EmptyTasksView extends StatelessWidget {
           Text(
             'No tasks yet',
             style: AppTextStyles.title.copyWith(
-              color: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.color,
+              color: colorScheme.onSurface,
             ),
           ),
 
           const SizedBox(height: 6),
 
-          const Text(
+          Text(
             'Start by adding your first task to this project.',
-            style: AppTextStyles.bodySecondary,
+            style: AppTextStyles.bodySecondary.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

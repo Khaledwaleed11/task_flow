@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../profile/presentation/screens/profile_screen.dart';
-import '../../domain/entities/user_entity.dart';
+import '../../auth/domain/entities/user_entity.dart';
+import '../../profile/presentation/screens/profile_screen.dart';
 
 class HomeHeader extends StatelessWidget {
   final UserEntity? user;
@@ -26,6 +26,9 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final name = user?.name.trim().isNotEmpty == true
         ? user!.name.trim()
         : 'there';
@@ -40,7 +43,9 @@ class HomeHeader extends StatelessWidget {
             children: [
               Text(
                 'Welcome back 👋',
-                style: AppTextStyles.bodySecondary,
+                style: AppTextStyles.bodySecondary.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -48,16 +53,15 @@ class HomeHeader extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.headline.copyWith(
-                  color: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.color,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 "Let's get things done.",
-                style: AppTextStyles.bodySecondary,
+                style: AppTextStyles.bodySecondary.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -74,7 +78,7 @@ class HomeHeader extends StatelessWidget {
             }
           },
           itemBuilder: (context) {
-            return const [
+            return [
               PopupMenuItem(
                 value: 'profile',
                 child: Row(
@@ -82,9 +86,15 @@ class HomeHeader extends StatelessWidget {
                     Icon(
                       Icons.person_outline_rounded,
                       size: 20,
+                      color: colorScheme.onSurface,
                     ),
-                    SizedBox(width: 10),
-                    Text('Profile'),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Profile',
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -95,9 +105,15 @@ class HomeHeader extends StatelessWidget {
                     Icon(
                       Icons.logout_rounded,
                       size: 20,
+                      color: colorScheme.error,
                     ),
-                    SizedBox(width: 10),
-                    Text('Logout'),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Logout',
+                      style: TextStyle(
+                        color: colorScheme.error,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -108,7 +124,7 @@ class HomeHeader extends StatelessWidget {
             child: Container(
               width: 46,
               height: 46,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primarySoft,
                 shape: BoxShape.circle,
               ),
