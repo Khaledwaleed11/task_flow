@@ -23,9 +23,7 @@ class _AdminNavigationScreenState extends State<AdminNavigationScreen> {
 
   late final List<Widget> _pages = [
     const AdminDashboardScreen(),
-    const ProjectsScreen(
-      showBackButton: false,
-    ),
+    const ProjectsScreen(showBackButton: false),
     const AdminTasksScreen(),
     ChangeNotifierProvider<AdminUserProvider>(
       create: (_) => sl<AdminUserProvider>(),

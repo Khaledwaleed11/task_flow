@@ -4,13 +4,16 @@ import '../../../../core/theme/app_text_styles.dart';
 
 class ProjectsTopBar extends StatelessWidget {
   final int projectCount;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
   final VoidCallback onCreate;
+  final bool showBackButton;
+
 
   const ProjectsTopBar({
     super.key,
     required this.projectCount,
-    required this.onBack,
+    this.showBackButton = true,
+    this.onBack,
     required this.onCreate,
   });
 
@@ -24,30 +27,24 @@ class ProjectsTopBar extends StatelessWidget {
       children: [
         Row(
           children: [
-            IconButton(
-              onPressed: onBack,
-              tooltip: 'Back',
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surface,
-                foregroundColor: colorScheme.onSurface,
-                fixedSize: const Size(44, 44),
-                side: BorderSide(
-                  color: colorScheme.outline.withValues(
-                    alpha: 0.7,
+            if (showBackButton)
+              IconButton(
+                onPressed: onBack,
+                tooltip: 'Back',
+                style: IconButton.styleFrom(
+                  backgroundColor: colorScheme.surface,
+                  foregroundColor: colorScheme.onSurface,
+                  fixedSize: const Size(44, 44),
+                  side: BorderSide(
+                    color: colorScheme.outline.withValues(alpha: 0.7),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                icon: const Icon(Icons.arrow_back_rounded, size: 20),
               ),
-              icon: const Icon(
-                Icons.arrow_back_rounded,
-                size: 20,
-              ),
-            ),
-
             const Spacer(),
-
             IconButton(
               onPressed: onCreate,
               tooltip: 'New project',
@@ -59,10 +56,7 @@ class ProjectsTopBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              icon: const Icon(
-                Icons.add_rounded,
-                size: 21,
-              ),
+              icon: const Icon(Icons.add_rounded, size: 21),
             ),
           ],
         ),

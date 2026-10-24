@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../home/presentation/screens/home_screen.dart';
+import '../../../admin/presentation/screens/admin_navigation_screen.dart';
+import '../../../home/presentation/screens/user_navigation_screen.dart';
 import '../../domain/entities/user_entity.dart';
 import '../providers/auth_provider.dart';
-import '../../../admin/presentation/screens/admin_dashboard_screen.dart';
 import 'login_screen.dart';
 
 class AuthGate extends StatefulWidget {
@@ -22,6 +22,7 @@ class _AuthGateState extends State<AuthGate> {
     final authProvider = context.read<AuthProvider>();
 
     Future.microtask(() {
+      if (!mounted) return;
       authProvider.checkCurrentUser();
     });
   }
@@ -39,10 +40,10 @@ class _AuthGateState extends State<AuthGate> {
 
           case AuthStatus.authenticated:
             if (authProvider.user?.role == UserRole.admin) {
-              return const AdminDashboardScreen();
+              return const AdminNavigationScreen();
             }
 
-            return const HomeScreen();
+            return const UserNavigationScreen();
 
           case AuthStatus.unauthenticated:
           case AuthStatus.failure:

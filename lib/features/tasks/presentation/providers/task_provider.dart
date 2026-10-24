@@ -341,12 +341,32 @@ class TaskProvider extends ChangeNotifier {
     );
   }
 
+
   Future<bool> toggleTaskCompletion({
     required String projectId,
     required String taskId,
     required bool isCompleted,
     required bool updateProjectStats,
   }) async {
+    final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
+
+    if (taskIndex == -1) {
+      _setActionFailure('Task not found.');
+      return false;
+    }
+
+    final task = _tasks[taskIndex];
+
+    // Prevent completing a task after its deadline.
+    if (!isCompleted &&
+        task.dueDate != null &&
+        !DateTime.now().isBefore(task.dueDate!)) {
+      _setActionFailure(
+        'This task deadline has expired. You cannot complete it.',
+      );
+      return false;
+    }
+
     _startAction(taskId: taskId);
 
     final result = await toggleTaskCompletionUseCase(
@@ -359,21 +379,15 @@ class TaskProvider extends ChangeNotifier {
     );
 
     return result.fold(
-      (failure) {
+          (failure) {
         _setActionFailure(failure.message);
         return false;
       },
-      (_) {
-        final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
-
-        if (taskIndex != -1) {
-          final task = _tasks[taskIndex];
-
-          _tasks[taskIndex] = task.copyWith(
-            isCompleted: !isCompleted,
-            updatedAt: DateTime.now(),
-          );
-        }
+          (_) {
+        _tasks[taskIndex] = task.copyWith(
+          isCompleted: !isCompleted,
+          updatedAt: DateTime.now(),
+        );
 
         _setActionSuccess();
         notifyListeners();
@@ -381,6 +395,7 @@ class TaskProvider extends ChangeNotifier {
       },
     );
   }
+
 
   void _startAction({String? taskId}) {
     _actionStatus = TaskActionStatus.loading;
@@ -399,6 +414,8 @@ class TaskProvider extends ChangeNotifier {
   void _setActionFailure(String message) {
     _actionStatus = TaskActionStatus.failure;
     _actionErrorMessage = message;
+    _actionTaskId = null;
+    notifyListeners();
   }
 
   void resetActionStatus() {

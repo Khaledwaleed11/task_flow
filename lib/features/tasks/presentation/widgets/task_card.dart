@@ -1,3 +1,6 @@
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
@@ -114,23 +117,23 @@ class _TaskStatusIndicator extends StatelessWidget {
           border: Border.all(color: statusColor, width: 2),
           boxShadow: task.isCompleted
               ? [
-                  BoxShadow(
-                    color: colorScheme.tertiary.withValues(alpha: 0.18),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
+            BoxShadow(
+              color: colorScheme.tertiary.withValues(alpha: 0.18),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ]
               : null,
         ),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 180),
           child: task.isCompleted
               ? Icon(
-                  Icons.check_rounded,
-                  key: const ValueKey('completed'),
-                  color: colorScheme.onTertiary,
-                  size: 18,
-                )
+            Icons.check_rounded,
+            key: const ValueKey('completed'),
+            color: colorScheme.onTertiary,
+            size: 18,
+          )
               : const SizedBox(key: ValueKey('pending')),
         ),
       ),
@@ -218,12 +221,159 @@ class _TaskContent extends StatelessWidget {
             _StatusLabel(isCompleted: task.isCompleted),
           ],
         ),
+        if (task.dueDate != null) ...[
+          const SizedBox(height: 14),
+          _DeadlineInfo(
+            dueDate: task.dueDate!,
+            isCompleted: task.isCompleted,
+          ),
+        ],
       ],
     );
   }
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+}
+
+class _DeadlineInfo extends StatefulWidget {
+  final DateTime dueDate;
+  final bool isCompleted;
+
+  const _DeadlineInfo({
+    required this.dueDate,
+    required this.isCompleted,
+  });
+
+  @override
+  State<_DeadlineInfo> createState() => _DeadlineInfoState();
+}
+
+class _DeadlineInfoState extends State<_DeadlineInfo> {
+  Timer? _timer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DeadlineInfo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.dueDate != widget.dueDate) {
+      _now = DateTime.now();
+      _startTimer();
+    }
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+
+    if (widget.isCompleted) return;
+
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _now = DateTime.now();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final dueDate = widget.dueDate;
+    final isExpired = !widget.isCompleted && !_now.isBefore(dueDate);
+    final remaining = dueDate.difference(_now);
+
+    final Color statusColor;
+    final IconData icon;
+    final String message;
+
+    if (widget.isCompleted) {
+      statusColor = colorScheme.tertiary;
+      icon = Icons.event_available_outlined;
+      message = 'Due: ${_formatDateTime(dueDate)}';
+    } else if (isExpired) {
+      statusColor = colorScheme.error;
+      icon = Icons.warning_amber_rounded;
+      message = 'Deadline expired';
+    } else {
+      statusColor = remaining.inHours < 24
+          ? colorScheme.error
+          : colorScheme.primary;
+      icon = Icons.schedule_rounded;
+      message =
+      'Due: ${_formatDateTime(dueDate)} • ${_formatRemaining(remaining)} left';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: statusColor.withValues(alpha: 0.22),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 17, color: statusColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTextStyles.caption.copyWith(
+                color: statusColor,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+
+    return '$day/$month/${date.year} $hour:$minute';
+  }
+
+  String _formatRemaining(Duration duration) {
+    if (duration.inDays > 0) {
+      final remainingHours = duration.inHours % 24;
+      return '${duration.inDays}d ${remainingHours}h';
+    }
+
+    if (duration.inHours > 0) {
+      final remainingMinutes = duration.inMinutes % 60;
+      return '${duration.inHours}h ${remainingMinutes}m';
+    }
+
+    if (duration.inMinutes > 0) {
+      return '${duration.inMinutes}m';
+    }
+
+    return 'Less than a minute';
   }
 }
 
@@ -268,7 +418,6 @@ class _StatusLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-
     final color = isCompleted ? colorScheme.tertiary : colorScheme.secondary;
 
     return Flexible(

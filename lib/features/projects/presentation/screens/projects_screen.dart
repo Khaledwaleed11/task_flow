@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +15,12 @@ import 'edit_project_screen.dart';
 import 'project_details_screen.dart';
 
 class ProjectsScreen extends StatefulWidget {
-  const ProjectsScreen({super.key});
+  final bool showBackButton;
+
+  const ProjectsScreen({
+    super.key,
+    this.showBackButton = true,
+  });
 
   @override
   State<ProjectsScreen> createState() => _ProjectsScreenState();
@@ -26,9 +32,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     super.initState();
 
     Future.microtask(() {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       final provider = context.read<ProjectProvider>();
 
@@ -51,13 +55,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         watchTasksUseCase: sl(),
         watchAllTasksUseCase: sl(),
       )..watchAllTasks(),
-      child: const _ProjectsView(),
+      child: _ProjectsView(
+        showBackButton: widget.showBackButton,
+      ),
     );
   }
 }
 
 class _ProjectsView extends StatelessWidget {
-  const _ProjectsView();
+  final bool showBackButton;
+
+  const _ProjectsView({
+    required this.showBackButton,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +95,11 @@ class _ProjectsView extends StatelessWidget {
                     sliver: SliverToBoxAdapter(
                       child: ProjectsTopBar(
                         projectCount: projects.length,
+                        showBackButton: showBackButton,
                         onBack: () {
-                          Navigator.of(context).pop();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
                         },
                         onCreate: () {
                           Navigator.push(
@@ -99,7 +112,6 @@ class _ProjectsView extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   if (projectProvider.status == ProjectStatus.loading ||
                       taskProvider.status == TaskStatus.loading)
                     SliverFillRemaining(
@@ -118,11 +130,11 @@ class _ProjectsView extends StatelessWidget {
                         padding: const EdgeInsets.all(20),
                         child: ProjectsErrorView(
                           message:
-                              projectProvider.status == ProjectStatus.failure
+                          projectProvider.status == ProjectStatus.failure
                               ? projectProvider.errorMessage ??
-                                    'Failed to load projects.'
+                              'Failed to load projects.'
                               : taskProvider.errorMessage ??
-                                    'Failed to load tasks.',
+                              'Failed to load tasks.',
                           onRetry: () {
                             if (projectProvider.status ==
                                 ProjectStatus.failure) {
@@ -137,74 +149,82 @@ class _ProjectsView extends StatelessWidget {
                       ),
                     )
                   else if (projects.isEmpty)
-                    const SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: ProjectsEmptyView(),
+                      const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: ProjectsEmptyView(),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                              final project = projects[index];
+
+                              final projectTasks = tasks.where(
+                                    (task) => task.projectId == project.id,
+                              );
+
+                              final totalTasks = projectTasks.length;
+
+                              final completedTasks = projectTasks
+                                  .where((task) => task.isCompleted)
+                                  .length;
+
+                              final pendingTasks =
+                                  totalTasks - completedTasks;
+
+                              final progress = totalTasks == 0
+                                  ? 0.0
+                                  : completedTasks / totalTasks;
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 14),
+                                child: ProjectCard(
+                                  project: project,
+                                  totalTasks: totalTasks,
+                                  completedTasks: completedTasks,
+                                  pendingTasks: pendingTasks,
+                                  progress: progress,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            ProjectDetailsScreen(
+                                              project: project,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  onEdit: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            EditProjectScreen(
+                                              project: project,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  onDelete: () {
+                                    _ProjectsScreenActions.deleteProject(
+                                      context,
+                                      projectProvider,
+                                      project,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            childCount: projects.length,
+                          ),
+                        ),
                       ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final project = projects[index];
-
-                          final projectTasks = tasks.where(
-                            (task) => task.projectId == project.id,
-                          );
-
-                          final totalTasks = projectTasks.length;
-
-                          final completedTasks = projectTasks
-                              .where((task) => task.isCompleted)
-                              .length;
-
-                          final pendingTasks = totalTasks - completedTasks;
-
-                          final progress = totalTasks == 0
-                              ? 0.0
-                              : completedTasks / totalTasks;
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 14),
-                            child: ProjectCard(
-                              project: project,
-                              totalTasks: totalTasks,
-                              completedTasks: completedTasks,
-                              pendingTasks: pendingTasks,
-                              progress: progress,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        ProjectDetailsScreen(project: project),
-                                  ),
-                                );
-                              },
-                              onEdit: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        EditProjectScreen(project: project),
-                                  ),
-                                );
-                              },
-                              onDelete: () {
-                                _ProjectsScreenActions.deleteProject(
-                                  context,
-                                  projectProvider,
-                                  project,
-                                );
-                              },
-                            ),
-                          );
-                        }, childCount: projects.length),
-                      ),
-                    ),
                 ],
               ),
             );
@@ -215,7 +235,9 @@ class _ProjectsView extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
+            MaterialPageRoute(
+              builder: (_) => const CreateProjectScreen(),
+            ),
           );
         },
         backgroundColor: colorScheme.primary,
@@ -229,10 +251,10 @@ class _ProjectsView extends StatelessWidget {
 
 class _ProjectsScreenActions {
   static Future<void> deleteProject(
-    BuildContext context,
-    ProjectProvider provider,
-    ProjectEntity project,
-  ) async {
+      BuildContext context,
+      ProjectProvider provider,
+      ProjectEntity project,
+      ) async {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -273,7 +295,7 @@ class _ProjectsScreenActions {
           ),
           content: Text(
             'Are you sure you want to delete "${project.name}"? '
-            'This action cannot be undone.',
+                'This action cannot be undone.',
             style: dialogTheme.textTheme.bodyMedium?.copyWith(
               color: dialogColors.onSurfaceVariant,
             ),
@@ -297,7 +319,10 @@ class _ProjectsScreenActions {
                 backgroundColor: dialogColors.error,
                 foregroundColor: dialogColors.onError,
               ),
-              icon: const Icon(Icons.delete_outline_rounded, size: 18),
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+              ),
               label: const Text('Delete'),
             ),
           ],
@@ -305,15 +330,11 @@ class _ProjectsScreenActions {
       },
     );
 
-    if (confirmed != true || !context.mounted) {
-      return;
-    }
+    if (confirmed != true || !context.mounted) return;
 
     final success = await provider.deleteProject(project.id);
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -338,7 +359,8 @@ class _ProjectsScreenActions {
               ),
             ],
           ),
-          backgroundColor: success ? colorScheme.primary : colorScheme.error,
+          backgroundColor:
+          success ? colorScheme.primary : colorScheme.error,
         ),
       );
   }

@@ -15,16 +15,14 @@ class UserNavigationScreen extends StatefulWidget {
       _UserNavigationScreenState();
 }
 
-class _UserNavigationScreenState extends State<UserNavigationScreen> {
+class _UserNavigationScreenState
+    extends State<UserNavigationScreen> {
   int _selectedIndex = 0;
 
   late final List<Widget> _pages = [
     const HomeScreen(),
     const MyTasksScreen(),
-    const ProjectsScreen(
-      showBackButton: false,
-      readOnly: true,
-    ),
+    const ProjectsScreen(showBackButton: false),
     const ProfileScreen(),
   ];
 
