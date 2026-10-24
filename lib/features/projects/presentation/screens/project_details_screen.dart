@@ -33,6 +33,7 @@ class ProjectDetailsScreen extends StatelessWidget {
         deleteTaskUseCase: sl(),
         toggleTaskCompletionUseCase: sl(),
         watchTasksUseCase: sl(),
+        watchAssignedTasksUseCase: sl(),
       )..watchTasks(projectId: project.id),
       child: _ProjectDetailsView(project: project),
     );

@@ -10,6 +10,7 @@ import '../../domain/usecases/get_tasks.dart';
 import '../../domain/usecases/toggle_task_completion.dart';
 import '../../domain/usecases/update_task.dart';
 import '../../domain/usecases/watch_all_tasks.dart';
+import '../../domain/usecases/watch_assigned_tasks.dart';
 import '../../domain/usecases/watch_tasks.dart';
 
 enum TaskStatus { initial, loading, loaded, failure }
@@ -25,6 +26,7 @@ class TaskProvider extends ChangeNotifier {
   final ToggleTaskCompletion toggleTaskCompletionUseCase;
   final WatchTasks watchTasksUseCase;
   final WatchAllTasks? watchAllTasksUseCase;
+  final WatchAssignedTasks? watchAssignedTasksUseCase;
 
   StreamSubscription? _tasksSubscription;
 
@@ -37,6 +39,7 @@ class TaskProvider extends ChangeNotifier {
     required this.toggleTaskCompletionUseCase,
     required this.watchTasksUseCase,
     this.watchAllTasksUseCase,
+    this.watchAssignedTasksUseCase,
   });
 
   TaskStatus _status = TaskStatus.initial;
@@ -166,6 +169,46 @@ class TaskProvider extends ChangeNotifier {
 
         _status = TaskStatus.failure;
         _errorMessage = error.toString();
+        notifyListeners();
+      },
+    );
+  }
+
+  void watchAssignedTasks({required String userId}) {
+    if (watchAssignedTasksUseCase == null) {
+      _status = TaskStatus.failure;
+      _errorMessage = 'Watch assigned tasks is not available.';
+      notifyListeners();
+      return;
+    }
+
+    _tasksSubscription?.cancel();
+
+    _status = TaskStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    _tasksSubscription = watchAssignedTasksUseCase!(
+      WatchAssignedTasksParams(userId: userId),
+    ).listen(
+      (result) {
+        result.fold(
+          (failure) {
+            _status = TaskStatus.failure;
+            _errorMessage = failure.message;
+            notifyListeners();
+          },
+          (tasks) {
+            _tasks = tasks;
+            _status = TaskStatus.loaded;
+            _errorMessage = null;
+            notifyListeners();
+          },
+        );
+      },
+      onError: (_) {
+        _status = TaskStatus.failure;
+        _errorMessage = 'Failed to watch assigned tasks.';
         notifyListeners();
       },
     );

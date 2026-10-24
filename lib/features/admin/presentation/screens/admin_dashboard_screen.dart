@@ -56,6 +56,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         toggleTaskCompletionUseCase: sl(),
         watchTasksUseCase: sl(),
         watchAllTasksUseCase: sl(),
+        watchAssignedTasksUseCase: sl(),
       )..watchAllTasks(),
       child: const _AdminDashboardView(),
     );

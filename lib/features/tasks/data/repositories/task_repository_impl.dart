@@ -94,6 +94,22 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
+  Stream<Either<Failure, List<TaskEntity>>> watchAssignedTasks({
+    required String userId,
+  }) async* {
+    try {
+      await for (final tasks
+          in remoteDataSource.watchAssignedTasks(userId: userId)) {
+        yield Right(tasks.map((task) => task.toEntity()).toList());
+      }
+    } on TaskException catch (e) {
+      yield Left(TaskFailure(e.message));
+    } catch (_) {
+      yield const Left(TaskFailure('Failed to watch assigned tasks.'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<TaskEntity>>> getAssignedTasks({
     required String userId,
   }) async {

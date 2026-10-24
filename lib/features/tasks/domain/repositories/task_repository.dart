@@ -23,6 +23,10 @@ abstract class TaskRepository {
 
   Stream<Either<Failure, List<TaskEntity>>> watchAllTasks();
 
+  Stream<Either<Failure, List<TaskEntity>>> watchAssignedTasks({
+    required String userId,
+  });
+
   Future<Either<Failure, List<TaskEntity>>> getAssignedTasks({
     required String userId,
   });

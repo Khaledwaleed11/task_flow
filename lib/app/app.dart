@@ -48,6 +48,7 @@ class TaskFlowApp extends StatelessWidget {
             deleteTaskUseCase: sl(),
             toggleTaskCompletionUseCase: sl(),
             watchTasksUseCase: sl(),
+            watchAssignedTasksUseCase: sl(),
           ),
         ),
       ],

@@ -7,6 +7,7 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/domain/usecases/update_profile_image.dart';
 import '../../features/tasks/domain/usecases/watch_all_tasks.dart';
+import '../../features/tasks/domain/usecases/watch_assigned_tasks.dart';
 import '../../features/admin/data/datasources/admin_remote_data_source.dart';
 import '../../features/admin/data/repositories/admin_repository_impl.dart';
 import '../../features/admin/domain/repositories/admin_repository.dart';
@@ -177,8 +178,11 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton<ToggleTaskCompletion>(
     () => ToggleTaskCompletion(sl<TaskRepository>()),
+  );  sl.registerLazySingleton<WatchAllTasks>(
+    () => WatchAllTasks(sl<TaskRepository>()),
   );
-  sl.registerLazySingleton<WatchAllTasks>(
-  () => WatchAllTasks(sl<TaskRepository>()),
+
+  sl.registerLazySingleton<WatchAssignedTasks>(
+    () => WatchAssignedTasks(sl<TaskRepository>()),
   );
 }

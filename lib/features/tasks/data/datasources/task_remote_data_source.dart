@@ -22,6 +22,8 @@ abstract class TaskRemoteDataSource {
 
   Stream<List<TaskModel>> watchAllTasks();
 
+  Stream<List<TaskModel>> watchAssignedTasks({required String userId});
+
   Future<List<TaskModel>> getAssignedTasks({required String userId});
 
   Future<TaskModel?> getTaskById({
@@ -167,6 +169,20 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
 
       return tasks;
     });
+  }
+
+  @override
+  Stream<List<TaskModel>> watchAssignedTasks({required String userId}) {
+    return firestore
+        .collectionGroup('tasks')
+        .where('assignedUserId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((document) {
+            return TaskModel.fromJson(document.data());
+          }).toList();
+        });
   }
 
   @override
