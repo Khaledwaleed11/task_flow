@@ -3,6 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/task_entity.dart';
 
 class TaskModel extends TaskEntity {
+  /// إشعارات محجوزة لـ Cloud Functions — بيانات بنية تحتية تبقى في طبقة Data
+  /// ولا تُعرض للـ Domain.
+  final bool isNotifiedBeforeDue;
+  final bool isNotifiedAtDue;
+
   const TaskModel({
     required super.id,
     required super.projectId,
@@ -11,14 +16,17 @@ class TaskModel extends TaskEntity {
     required super.isCompleted,
     required super.priority,
     required super.assignedUserId,
+    required super.assignedBy,
+    required super.dueDate,
     required super.createdAt,
     required super.updatedAt,
+    this.isNotifiedBeforeDue = false,
+    this.isNotifiedAtDue = false,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     final createdAt = _parseTimestamp(json['createdAt']) ?? DateTime.now();
     final updatedAt = _parseTimestamp(json['updatedAt']) ?? createdAt;
-
     return TaskModel(
       id: json['id'] as String,
       projectId: json['projectId'] as String,
@@ -27,8 +35,12 @@ class TaskModel extends TaskEntity {
       isCompleted: json['isCompleted'] as bool,
       priority: _priorityFromString(json['priority'] as String),
       assignedUserId: json['assignedUserId'] as String?,
+      assignedBy: json['assignedBy'] as String?,
+      dueDate: _parseTimestamp(json['dueDate']),
       createdAt: createdAt,
       updatedAt: updatedAt,
+      isNotifiedBeforeDue: json['isNotifiedBeforeDue'] as bool? ?? false,
+      isNotifiedAtDue: json['isNotifiedAtDue'] as bool? ?? false,
     );
   }
 
@@ -41,6 +53,11 @@ class TaskModel extends TaskEntity {
       'isCompleted': isCompleted,
       'priority': priority.name,
       'assignedUserId': assignedUserId,
+      'assignedBy': assignedBy,
+      // لا نكتب الحقل إطلاقًا لو فارغ حتى تستبعد استعلامات dueDate المهام بلا موعد.
+      if (dueDate != null) 'dueDate': Timestamp.fromDate(dueDate!),
+      'isNotifiedBeforeDue': isNotifiedBeforeDue,
+      'isNotifiedAtDue': isNotifiedAtDue,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -55,6 +72,8 @@ class TaskModel extends TaskEntity {
       isCompleted: entity.isCompleted,
       priority: entity.priority,
       assignedUserId: entity.assignedUserId,
+      assignedBy: entity.assignedBy,
+      dueDate: entity.dueDate,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -69,6 +88,8 @@ class TaskModel extends TaskEntity {
       isCompleted: isCompleted,
       priority: priority,
       assignedUserId: assignedUserId,
+      assignedBy: assignedBy,
+      dueDate: dueDate,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

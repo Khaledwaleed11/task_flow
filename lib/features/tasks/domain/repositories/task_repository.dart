@@ -10,6 +10,7 @@ abstract class TaskRepository {
     required String description,
     required TaskPriority priority,
     String? assignedUserId,
+    DateTime? dueDate,
   });
 
   Future<Either<Failure, List<TaskEntity>>> getTasks({
@@ -38,6 +39,7 @@ abstract class TaskRepository {
     required String description,
     required TaskPriority priority,
     String? assignedUserId,
+    DateTime? dueDate,
   });
 
   Future<Either<Failure, Unit>> deleteTask({

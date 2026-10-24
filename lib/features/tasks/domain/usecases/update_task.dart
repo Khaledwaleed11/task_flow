@@ -19,6 +19,7 @@ class UpdateTask implements UseCase<Unit, UpdateTaskParams> {
       description: params.description,
       priority: params.priority,
       assignedUserId: params.assignedUserId,
+      dueDate: params.dueDate,
     );
   }
 }
@@ -30,6 +31,7 @@ class UpdateTaskParams {
   final String description;
   final TaskPriority priority;
   final String? assignedUserId;
+  final DateTime? dueDate;
 
   const UpdateTaskParams({
     required this.projectId,
@@ -38,5 +40,6 @@ class UpdateTaskParams {
     required this.description,
     required this.priority,
     this.assignedUserId,
+    this.dueDate,
   });
 }

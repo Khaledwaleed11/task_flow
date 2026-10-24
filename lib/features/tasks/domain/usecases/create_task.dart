@@ -18,6 +18,7 @@ class CreateTask implements UseCase<TaskEntity, CreateTaskParams> {
       description: params.description,
       priority: params.priority,
       assignedUserId: params.assignedUserId,
+      dueDate: params.dueDate,
     );
   }
 }
@@ -28,6 +29,7 @@ class CreateTaskParams {
   final String description;
   final TaskPriority priority;
   final String? assignedUserId;
+  final DateTime? dueDate;
 
   const CreateTaskParams({
     required this.projectId,
@@ -35,5 +37,6 @@ class CreateTaskParams {
     required this.description,
     required this.priority,
     this.assignedUserId,
+    this.dueDate,
   });
 }

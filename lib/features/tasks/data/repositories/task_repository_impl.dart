@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../../../core/auth/current_user_provider.dart';
 import '../../../../core/error/exceptions/task_exception.dart';
 import '../../../../core/error/failures/failure.dart';
 import '../../../../core/error/failures/task_failure.dart';
@@ -10,8 +11,12 @@ import '../datasources/task_remote_data_source.dart';
 
 class TaskRepositoryImpl implements TaskRepository {
   final TaskRemoteDataSource remoteDataSource;
+  final CurrentUserProvider currentUserProvider;
 
-  TaskRepositoryImpl({required this.remoteDataSource});
+  TaskRepositoryImpl({
+    required this.remoteDataSource,
+    required this.currentUserProvider,
+  });
 
   @override
   Future<Either<Failure, TaskEntity>> createTask({
@@ -20,6 +25,7 @@ class TaskRepositoryImpl implements TaskRepository {
     required String description,
     required TaskPriority priority,
     String? assignedUserId,
+    DateTime? dueDate,
   }) async {
     try {
       final task = await remoteDataSource.createTask(
@@ -28,6 +34,8 @@ class TaskRepositoryImpl implements TaskRepository {
         description: description,
         priority: priority.name,
         assignedUserId: assignedUserId,
+        dueDate: dueDate,
+        assignedBy: currentUserProvider.currentUserId,
       );
 
       return Right(task.toEntity());
@@ -130,6 +138,7 @@ class TaskRepositoryImpl implements TaskRepository {
     required String description,
     required TaskPriority priority,
     String? assignedUserId,
+    DateTime? dueDate,
   }) async {
     try {
       await remoteDataSource.updateTask(
@@ -139,6 +148,8 @@ class TaskRepositoryImpl implements TaskRepository {
         description: description,
         priority: priority.name,
         assignedUserId: assignedUserId,
+        dueDate: dueDate,
+        assignedBy: currentUserProvider.currentUserId,
       );
 
       return const Right(unit);

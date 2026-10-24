@@ -8,6 +8,8 @@ class TaskEntity {
   final bool isCompleted;
   final TaskPriority priority;
   final String? assignedUserId;
+  final String? assignedBy;
+  final DateTime? dueDate;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -19,6 +21,8 @@ class TaskEntity {
     required this.isCompleted,
     required this.priority,
     required this.assignedUserId,
+    required this.assignedBy,
+    required this.dueDate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -31,6 +35,8 @@ class TaskEntity {
     bool? isCompleted,
     TaskPriority? priority,
     String? assignedUserId,
+    String? assignedBy,
+    DateTime? dueDate,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -42,6 +48,8 @@ class TaskEntity {
       isCompleted: isCompleted ?? this.isCompleted,
       priority: priority ?? this.priority,
       assignedUserId: assignedUserId ?? this.assignedUserId,
+      assignedBy: assignedBy ?? this.assignedBy,
+      dueDate: dueDate ?? this.dueDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

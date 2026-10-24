@@ -201,6 +201,7 @@ class TaskProvider extends ChangeNotifier {
     required String description,
     required TaskPriority priority,
     String? assignedUserId,
+    DateTime? dueDate,
   }) async {
     _startAction();
 
@@ -211,6 +212,7 @@ class TaskProvider extends ChangeNotifier {
         description: description,
         priority: priority,
         assignedUserId: assignedUserId,
+        dueDate: dueDate,
       ),
     );
 
@@ -233,6 +235,7 @@ class TaskProvider extends ChangeNotifier {
     required String description,
     required TaskPriority priority,
     String? assignedUserId,
+    DateTime? dueDate,
   }) async {
     _startAction(taskId: taskId);
 
@@ -244,6 +247,7 @@ class TaskProvider extends ChangeNotifier {
         description: description,
         priority: priority,
         assignedUserId: assignedUserId,
+        dueDate: dueDate,
       ),
     );
 

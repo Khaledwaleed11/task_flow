@@ -12,6 +12,8 @@ abstract class TaskRemoteDataSource {
     required String description,
     required String priority,
     String? assignedUserId,
+    DateTime? dueDate,
+    String? assignedBy,
   });
 
   Future<List<TaskModel>> getTasks({required String projectId});
@@ -34,6 +36,8 @@ abstract class TaskRemoteDataSource {
     required String description,
     required String priority,
     String? assignedUserId,
+    DateTime? dueDate,
+    String? assignedBy,
   });
 
   Future<void> deleteTask({
@@ -70,6 +74,8 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
     required String description,
     required String priority,
     String? assignedUserId,
+    DateTime? dueDate,
+    String? assignedBy,
   }) async {
     try {
       final taskDocument = _tasksCollection(projectId).doc();
@@ -84,6 +90,8 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
         isCompleted: false,
         priority: _priorityFromString(priority),
         assignedUserId: assignedUserId,
+        assignedBy: assignedUserId == null ? null : assignedBy,
+        dueDate: dueDate,
         createdAt: now,
         updatedAt: now,
       );
@@ -208,15 +216,27 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
     required String description,
     required String priority,
     String? assignedUserId,
+    DateTime? dueDate,
+    String? assignedBy,
   }) async {
     try {
       final taskDocument = _tasksCollection(projectId).doc(taskId);
+      final existing = await taskDocument.get();
+      final previousAssignee = existing.data()?['assignedUserId'] as String?;
 
       await taskDocument.update({
         'title': title,
         'description': description,
         'priority': priority,
         'assignedUserId': assignedUserId,
+        // حذف الحقل لو أُزيل الموعد حتى لا تظل المهمة مرشّحة لجدولة إشعار منتهٍ.
+        if (dueDate == null) 'dueDate': FieldValue.delete(),
+        if (dueDate != null) 'dueDate': Timestamp.fromDate(dueDate),
+        // نحدّث المنسِّب فقط عند تغيّر الإسناد فعليًا.
+        if (assignedUserId != null &&
+            assignedBy != null &&
+            assignedUserId != previousAssignee)
+          'assignedBy': assignedBy,
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException catch (e) {

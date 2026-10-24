@@ -151,7 +151,10 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton<TaskRepository>(
-    () => TaskRepositoryImpl(remoteDataSource: sl<TaskRemoteDataSource>()),
+    () => TaskRepositoryImpl(
+      remoteDataSource: sl<TaskRemoteDataSource>(),
+      currentUserProvider: sl<CurrentUserProvider>(),
+    ),
   );
 
   sl.registerLazySingleton<CreateTask>(() => CreateTask(sl<TaskRepository>()));

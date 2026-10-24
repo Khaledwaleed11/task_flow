@@ -9,6 +9,7 @@ import '../widgets/create_task_assignment_section.dart';
 import '../widgets/create_task_button.dart';
 import '../widgets/create_task_header.dart';
 import '../widgets/edit_task_section_label.dart';
+import '../widgets/task_due_date_selector.dart';
 import '../widgets/task_information_card.dart';
 import '../widgets/task_priority_selector.dart';
 
@@ -34,6 +35,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen>
 
   TaskPriority _selectedPriority = TaskPriority.medium;
   String? _selectedUserId;
+  DateTime? _dueDate;
 
   @override
   void initState() {
@@ -105,6 +107,19 @@ class _CreateTaskScreenState extends State<CreateTaskScreen>
       return;
     }
 
+    if (_dueDate != null && _dueDate!.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            content: const Text('Due date must be in the future.'),
+          ),
+        );
+      return;
+    }
+
     final provider = context.read<TaskProvider>();
 
     final success = await provider.createTask(
@@ -113,6 +128,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen>
       description: _descriptionController.text.trim(),
       priority: _selectedPriority,
       assignedUserId: _selectedUserId,
+      dueDate: _dueDate,
     );
 
     if (!mounted) {
@@ -258,6 +274,15 @@ class _CreateTaskScreenState extends State<CreateTaskScreen>
                                 onChanged: (value) {
                                   setState(() {
                                     _selectedUserId = value;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              TaskDueDateSelector(
+                                dueDate: _dueDate,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _dueDate = value;
                                   });
                                 },
                               ),
