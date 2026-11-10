@@ -63,8 +63,10 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
         completedTasks: 0,
       );
 
-      await document.set(project.toJson());
-
+      await document.set({
+        ...project.toJson(),
+        'assignedUserIds': <String>[],
+      });
       return project;
     } on FirebaseException catch (e) {
       throw AppException(e.message ?? 'Failed to create project.');
@@ -73,15 +75,29 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
     }
   }
 
+
   @override
   Future<List<ProjectModel>> getProjects({required String ownerId}) async {
     try {
-      final snapshot = await _projectsCollection
-          .where('ownerId', isEqualTo: ownerId)
-          .get();
+      final userDocument =
+      await firestore.collection('users').doc(ownerId).get();
+
+      final isAdmin = userDocument.data()?['role'] == 'admin';
+
+      final query = isAdmin
+          ? _projectsCollection.where('ownerId', isEqualTo: ownerId)
+          : _projectsCollection.where(
+        'assignedUserIds',
+        arrayContains: ownerId,
+      );
+
+      final snapshot = await query.get();
 
       return snapshot.docs.map((document) {
-        return ProjectModel.fromJson(document.data());
+        return ProjectModel.fromJson({
+          ...document.data(),
+          'id': document.id,
+        });
       }).toList();
     } on FirebaseException catch (e) {
       throw AppException(e.message ?? 'Failed to get projects.');
@@ -90,15 +106,29 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
     }
   }
 
+
+
   @override
   Stream<List<ProjectModel>> watchProjects({required String ownerId}) async* {
     try {
-      await for (final snapshot
-          in _projectsCollection
-              .where('ownerId', isEqualTo: ownerId)
-              .snapshots()) {
+      final userDocument =
+      await firestore.collection('users').doc(ownerId).get();
+
+      final isAdmin = userDocument.data()?['role'] == 'admin';
+
+      final query = isAdmin
+          ? _projectsCollection.where('ownerId', isEqualTo: ownerId)
+          : _projectsCollection.where(
+        'assignedUserIds',
+        arrayContains: ownerId,
+      );
+
+      await for (final snapshot in query.snapshots()) {
         yield snapshot.docs.map((document) {
-          return ProjectModel.fromJson(document.data());
+          return ProjectModel.fromJson({
+            ...document.data(),
+            'id': document.id,
+          });
         }).toList();
       }
     } on FirebaseException catch (e) {
@@ -109,6 +139,8 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
       throw AppException('Watch projects error: $e');
     }
   }
+
+
 
   @override
   Future<ProjectModel?> getProjectById({
@@ -122,9 +154,17 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
         return null;
       }
 
-      final project = ProjectModel.fromJson(document.data()!);
+      final data = document.data()!;
+      final project = ProjectModel.fromJson({
+        ...data,
+        'id': document.id,
+      });
 
-      if (project.ownerId != ownerId) {
+      final assignedUserIds = data['assignedUserIds'];
+      final isAssigned = assignedUserIds is List &&
+          assignedUserIds.contains(ownerId);
+
+      if (project.ownerId != ownerId && !isAssigned) {
         return null;
       }
 
@@ -135,6 +175,7 @@ class ProjectRemoteDataSourceImpl implements ProjectRemoteDataSource {
       throw const AppException('Failed to get project.');
     }
   }
+
 
   @override
   Future<void> updateProject({

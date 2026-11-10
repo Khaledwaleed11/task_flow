@@ -29,9 +29,7 @@ class ProjectsErrorView extends StatelessWidget {
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: colorScheme.error.withValues(
-                  alpha: 0.25,
-                ),
+                color: colorScheme.error.withValues(alpha: 0.25),
               ),
             ),
             child: Column(
@@ -41,9 +39,7 @@ class ProjectsErrorView extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: colorScheme.error.withValues(
-                      alpha: 0.10,
-                    ),
+                    color: colorScheme.error.withValues(alpha: 0.10),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -52,9 +48,7 @@ class ProjectsErrorView extends StatelessWidget {
                     size: 30,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 Text(
                   'Something went wrong',
                   textAlign: TextAlign.center,
@@ -62,9 +56,7 @@ class ProjectsErrorView extends StatelessWidget {
                     color: colorScheme.onSurface,
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 Text(
                   message,
                   style: AppTextStyles.bodySecondary.copyWith(
@@ -72,20 +64,14 @@ class ProjectsErrorView extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-
                 const SizedBox(height: 20),
-
                 OutlinedButton.icon(
                   onPressed: onRetry,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: colorScheme.primary,
-                    side: BorderSide(
-                      color: colorScheme.outline,
-                    ),
+                    side: BorderSide(color: colorScheme.outline),
                   ),
-                  icon: const Icon(
-                    Icons.refresh_rounded,
-                  ),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Try Again'),
                 ),
               ],

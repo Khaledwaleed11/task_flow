@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/app_bottom_navigation_bar.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
-import '../../../projects/presentation/screens/projects_screen.dart';
 import '../../../tasks/presentation/screens/my_tasks_screen.dart';
 import 'home_screen.dart';
 
@@ -22,7 +21,6 @@ class _UserNavigationScreenState
   late final List<Widget> _pages = [
     const HomeScreen(),
     const MyTasksScreen(),
-    const ProjectsScreen(showBackButton: false),
     const ProfileScreen(),
   ];
 
@@ -50,11 +48,6 @@ class _UserNavigationScreenState
             icon: Icon(Icons.task_outlined),
             selectedIcon: Icon(Icons.task_rounded),
             label: 'My Tasks',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder_rounded),
-            label: 'Projects',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),

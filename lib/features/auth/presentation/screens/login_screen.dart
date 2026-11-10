@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -65,7 +66,6 @@ class _LoginScreenState extends State<LoginScreen>
     _emailController.dispose();
     _passwordController.dispose();
     _animationController.dispose();
-
     super.dispose();
   }
 
@@ -76,9 +76,7 @@ class _LoginScreenState extends State<LoginScreen>
       return 'Please enter your email.';
     }
 
-    final emailRegex = RegExp(
-      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-    );
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
     if (!emailRegex.hasMatch(email)) {
       return 'Please enter a valid email.';
@@ -115,9 +113,7 @@ class _LoginScreenState extends State<LoginScreen>
       password: _passwordController.text,
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (!success) {
       ScaffoldMessenger.of(context)
@@ -125,8 +121,7 @@ class _LoginScreenState extends State<LoginScreen>
         ..showSnackBar(
           SnackBar(
             content: Text(
-              authProvider.errorMessage ??
-                  'Failed to login.',
+              authProvider.errorMessage ?? 'Failed to login.',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -142,9 +137,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
 
-    if (!mounted || registered != true) {
-      return;
-    }
+    if (!mounted || registered != true) return;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -169,34 +162,36 @@ class _LoginScreenState extends State<LoginScreen>
         Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark
+          ? AppColors.darkBackground
+          : AppColors.background,
       body: Stack(
         children: [
           Positioned(
-            top: -120,
-            right: -100,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(
-                  alpha: isDark ? 0.12 : 0.07,
-                ),
-              ),
+            top: -145,
+            right: -115,
+            child: _buildDecoration(
+              size: 330,
+              color: AppColors.primary,
+              opacity: isDark ? 0.16 : 0.09,
             ),
           ),
           Positioned(
-            bottom: -150,
-            left: -120,
-            child: Container(
-              width: 320,
-              height: 320,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primarySoft.withValues(
-                  alpha: isDark ? 0.08 : 0.7,
-                ),
-              ),
+            bottom: -170,
+            left: -130,
+            child: _buildDecoration(
+              size: 350,
+              color: AppColors.warning,
+              opacity: isDark ? 0.08 : 0.07,
+            ),
+          ),
+          Positioned(
+            top: 210,
+            left: -45,
+            child: _buildDecoration(
+              size: 100,
+              color: AppColors.primary,
+              opacity: isDark ? 0.07 : 0.045,
             ),
           ),
           SafeArea(
@@ -204,11 +199,12 @@ class _LoginScreenState extends State<LoginScreen>
               builder: (context, authProvider, child) {
                 return Center(
                   child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(
                       20,
-                      28,
+                      32,
                       20,
-                      28,
+                      30,
                     ),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(
@@ -225,41 +221,73 @@ class _LoginScreenState extends State<LoginScreen>
                               CrossAxisAlignment.stretch,
                               children: [
                                 const LoginBrand(),
-                                const SizedBox(height: 42),
+
+                                const SizedBox(height: 38),
+
                                 const LoginWelcomeHeader(),
-                                const SizedBox(height: 28),
-                                AuthFormCard(
-                                  emailController:
-                                  _emailController,
-                                  passwordController:
-                                  _passwordController,
-                                  obscurePassword:
-                                  _obscurePassword,
-                                  isLoading:
-                                  authProvider.isLoading,
-                                  title:
-                                  'Sign in to your account',
-                                  subtitle:
-                                  'Enter your details to access your workspace.',
-                                  submitLabel: 'Sign In',
-                                  loadingLabel: 'Signing In...',
-                                  emailValidator:
-                                  _validateEmail,
-                                  passwordValidator:
-                                  _validatePassword,
-                                  onTogglePassword:
-                                  _togglePasswordVisibility,
-                                  onSubmit: _login,
+
+                                const SizedBox(height: 30),
+
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? AppColors.darkSurface
+                                        : AppColors.surface,
+                                    borderRadius:
+                                    BorderRadius.circular(28),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white.withValues(
+                                        alpha: 0.06,
+                                      )
+                                          : AppColors.border.withValues(
+                                        alpha: 0.8,
+                                      ),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: isDark ? 0.12 : 0.035,
+                                        ),
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 12),
+                                      ),
+                                    ],
+                                  ),
+                                  child: AuthFormCard(
+                                    emailController:
+                                    _emailController,
+                                    passwordController:
+                                    _passwordController,
+                                    obscurePassword:
+                                    _obscurePassword,
+                                    isLoading:
+                                    authProvider.isLoading,
+                                    title: 'Sign in to your account',
+                                    subtitle:
+                                    'Enter your details to access your workspace.',
+                                    submitLabel: 'Sign In',
+                                    loadingLabel: 'Signing In...',
+                                    emailValidator: _validateEmail,
+                                    passwordValidator:
+                                    _validatePassword,
+                                    onTogglePassword:
+                                    _togglePasswordVisibility,
+                                    onSubmit: _login,
+                                  ),
                                 ),
-                                const SizedBox(height: 24),
+
+                                const SizedBox(height: 25),
+
                                 AuthFooter(
-                                  message:
-                                  "Don't have an account?",
-                                  actionLabel:
-                                  'Create Account',
+                                  message: "Don't have an account?",
+                                  actionLabel: 'Create Account',
                                   onPressed: _openRegister,
                                 ),
-                                const SizedBox(height: 22),
+
+                                const SizedBox(height: 24),
+
                                 const AuthDivider(),
                               ],
                             ),
@@ -273,6 +301,21 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDecoration({
+    required double size,
+    required Color color,
+    required double opacity,
+  }) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withValues(alpha: opacity),
       ),
     );
   }

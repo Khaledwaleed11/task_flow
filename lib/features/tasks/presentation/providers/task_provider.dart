@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-
+import '../../domain/usecases/start_task.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/usecases/create_task.dart';
 import '../../domain/usecases/delete_task.dart';
@@ -27,7 +27,7 @@ class TaskProvider extends ChangeNotifier {
   final WatchTasks watchTasksUseCase;
   final WatchAllTasks? watchAllTasksUseCase;
   final WatchAssignedTasks? watchAssignedTasksUseCase;
-
+  final StartTask startTaskUseCase;
   StreamSubscription? _tasksSubscription;
 
   TaskProvider({
@@ -40,6 +40,7 @@ class TaskProvider extends ChangeNotifier {
     required this.watchTasksUseCase,
     this.watchAllTasksUseCase,
     this.watchAssignedTasksUseCase,
+    required this.startTaskUseCase,
   });
 
   TaskStatus _status = TaskStatus.initial;
@@ -67,13 +68,10 @@ class TaskProvider extends ChangeNotifier {
 
   bool get hasTasks => _tasks.isNotEmpty;
 
-  int get completedTasksCount {
-    return _tasks.where((task) => task.isCompleted).length;
-  }
+  int get completedTasksCount =>
+      _tasks.where((task) => task.isCompleted).length;
 
-  int get pendingTasksCount {
-    return _tasks.where((task) => !task.isCompleted).length;
-  }
+  int get pendingTasksCount => _tasks.where((task) => !task.isCompleted).length;
 
   Future<void> getTasks({required String projectId}) async {
     _status = TaskStatus.loading;
@@ -121,14 +119,74 @@ class TaskProvider extends ChangeNotifier {
               },
             );
           },
-          onError: (_) {
+          onError: (error, stackTrace) {
+            debugPrint('WATCH TASKS STREAM ERROR: $error');
+            debugPrint('WATCH TASKS STACK TRACE: $stackTrace');
+
             _status = TaskStatus.failure;
-            _errorMessage = 'Failed to watch tasks.';
+            _errorMessage = error.toString();
             notifyListeners();
           },
         );
   }
+  Future<bool> startTask({
+    required String projectId,
+    required String taskId,
+  }) async {
+    final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
 
+    if (taskIndex == -1) {
+      _setActionFailure('Task not found.');
+      return false;
+    }
+
+    final task = _tasks[taskIndex];
+
+    if (task.isCompleted) {
+      _setActionFailure('This task is already completed.');
+      return false;
+    }
+
+    if (task.progressStatus == TaskProgressStatus.inProgress) {
+      return true;
+    }
+
+    if (task.dueDate != null &&
+        !DateTime.now().isBefore(task.dueDate!)) {
+      _setActionFailure('This task deadline has expired.');
+      return false;
+    }
+
+    _startAction(taskId: taskId);
+
+    final result = await startTaskUseCase(
+      StartTaskParams(
+        projectId: projectId,
+        taskId: taskId,
+      ),
+    );
+
+    return result.fold(
+          (failure) {
+        _setActionFailure(failure.message);
+        return false;
+      },
+          (_) {
+        final updatedTaskIndex =
+        _tasks.indexWhere((task) => task.id == taskId);
+
+        if (updatedTaskIndex != -1) {
+          _tasks[updatedTaskIndex] = _tasks[updatedTaskIndex].copyWith(
+            progressStatus: TaskProgressStatus.inProgress,
+            updatedAt: DateTime.now(),
+          );
+        }
+
+        _setActionSuccess();
+        return true;
+      },
+    );
+  }
   void watchAllTasks() {
     if (watchAllTasksUseCase == null) {
       _status = TaskStatus.failure;
@@ -188,30 +246,42 @@ class TaskProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    _tasksSubscription = watchAssignedTasksUseCase!(
-      WatchAssignedTasksParams(userId: userId),
-    ).listen(
-      (result) {
-        result.fold(
-          (failure) {
-            _status = TaskStatus.failure;
-            _errorMessage = failure.message;
-            notifyListeners();
+    debugPrint('WATCH ASSIGNED TASKS: userId=$userId');
+
+    _tasksSubscription =
+        watchAssignedTasksUseCase!(
+          WatchAssignedTasksParams(userId: userId),
+        ).listen(
+          (result) {
+            result.fold(
+              (failure) {
+                debugPrint('WATCH ASSIGNED TASKS FAILURE: ${failure.message}');
+
+                _status = TaskStatus.failure;
+                _errorMessage = failure.message;
+                notifyListeners();
+              },
+              (tasks) {
+                debugPrint(
+                  'WATCH ASSIGNED TASKS SUCCESS: ${tasks.length} tasks',
+                );
+
+                _tasks = tasks;
+                _status = TaskStatus.loaded;
+                _errorMessage = null;
+                notifyListeners();
+              },
+            );
           },
-          (tasks) {
-            _tasks = tasks;
-            _status = TaskStatus.loaded;
-            _errorMessage = null;
+          onError: (error, stackTrace) {
+            debugPrint('WATCH ASSIGNED TASKS STREAM ERROR: $error');
+            debugPrint('WATCH ASSIGNED TASKS STACK TRACE: $stackTrace');
+
+            _status = TaskStatus.failure;
+            _errorMessage = error.toString();
             notifyListeners();
           },
         );
-      },
-      onError: (_) {
-        _status = TaskStatus.failure;
-        _errorMessage = 'Failed to watch assigned tasks.';
-        notifyListeners();
-      },
-    );
   }
 
   Future<void> getAssignedTasks({required String userId}) async {
@@ -341,7 +411,6 @@ class TaskProvider extends ChangeNotifier {
     );
   }
 
-
   Future<bool> toggleTaskCompletion({
     required String projectId,
     required String taskId,
@@ -357,7 +426,6 @@ class TaskProvider extends ChangeNotifier {
 
     final task = _tasks[taskIndex];
 
-    // Prevent completing a task after its deadline.
     if (!isCompleted &&
         task.dueDate != null &&
         !DateTime.now().isBefore(task.dueDate!)) {
@@ -379,11 +447,11 @@ class TaskProvider extends ChangeNotifier {
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         _setActionFailure(failure.message);
         return false;
       },
-          (_) {
+      (_) {
         _tasks[taskIndex] = task.copyWith(
           isCompleted: !isCompleted,
           updatedAt: DateTime.now(),
@@ -395,7 +463,6 @@ class TaskProvider extends ChangeNotifier {
       },
     );
   }
-
 
   void _startAction({String? taskId}) {
     _actionStatus = TaskActionStatus.loading;

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -7,12 +8,10 @@ import '../../profile/presentation/screens/profile_screen.dart';
 
 class HomeHeader extends StatelessWidget {
   final UserEntity? user;
-  final VoidCallback onLogout;
 
   const HomeHeader({
     super.key,
     required this.user,
-    required this.onLogout,
   });
 
   void _openProfile(BuildContext context) {
@@ -26,8 +25,7 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final name = user?.name.trim().isNotEmpty == true
         ? user!.name.trim()
@@ -35,120 +33,117 @@ class HomeHeader extends StatelessWidget {
 
     final imageUrl = user?.profileImageUrl;
 
+    final textColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Welcome back 👋',
-                style: AppTextStyles.bodySecondary.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 5,
+                children: [
+                  Text(
+                    'Good morning,',
+                    style: AppTextStyles.bodySecondary.copyWith(
+                      color: secondaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    name,
+                    style: AppTextStyles.headline.copyWith(
+                      color: textColor,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const Text('👋', style: TextStyle(fontSize: 16)),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.headline.copyWith(
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 7),
               Text(
                 "Let's get things done.",
                 style: AppTextStyles.bodySecondary.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+                  color: secondaryColor,
+                  fontSize: 13,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 12),
-        PopupMenuButton<String>(
-          onSelected: (value) {
-            if (value == 'profile') {
-              _openProfile(context);
-            }
-
-            if (value == 'logout') {
-              onLogout();
-            }
-          },
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.person_outline_rounded,
-                      size: 20,
-                      color: colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Profile',
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+        const SizedBox(width: 14),
+        GestureDetector(
+          onTap: () => _openProfile(context),
+          child: Container(
+            width: 58,
+            height: 58,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primary,
+                  AppColors.warning,
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.18),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.logout_rounded,
-                      size: 20,
-                      color: colorScheme.error,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Logout',
-                      style: TextStyle(
-                        color: colorScheme.error,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ];
-          },
-          child: GestureDetector(
-            onTap: () => _openProfile(context),
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: const BoxDecoration(
-                color: AppColors.primarySoft,
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
+              ],
+            ),
+            child: ClipOval(
+              child: Container(
+                color: isDark ? AppColors.darkCard : AppColors.surface,
                 child: imageUrl != null && imageUrl.isNotEmpty
                     ? Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) {
-                    return const Icon(
-                      Icons.person_rounded,
-                      color: AppColors.primary,
-                    );
-                  },
+                  errorBuilder: (_, __, ___) => _buildFallback(name),
                 )
-                    : const Icon(
-                  Icons.person_rounded,
-                  color: AppColors.primary,
-                ),
+                    : _buildFallback(name),
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFallback(String name) {
+    return Container(
+      alignment: Alignment.center,
+      color: AppColors.primarySoft,
+      child: name.isNotEmpty && name != 'there'
+          ? Text(
+        name[0].toUpperCase(),
+        style: const TextStyle(
+          color: AppColors.primary,
+          fontSize: 23,
+          fontWeight: FontWeight.w800,
+        ),
+      )
+          : const Icon(
+        Icons.person_rounded,
+        color: AppColors.primary,
+        size: 30,
+      ),
     );
   }
 }

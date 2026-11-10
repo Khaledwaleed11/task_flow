@@ -1,10 +1,10 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/task_entity.dart';
 
 class TaskModel extends TaskEntity {
-  /// إشعارات محجوزة لـ Cloud Functions — بيانات بنية تحتية تبقى في طبقة Data
-  /// ولا تُعرض للـ Domain.
+  // إشعارات محجوزة لـ Cloud Functions.
   final bool isNotifiedBeforeDue;
   final bool isNotifiedAtDue;
 
@@ -14,6 +14,7 @@ class TaskModel extends TaskEntity {
     required super.title,
     required super.description,
     required super.isCompleted,
+    super.progressStatus = TaskProgressStatus.notStarted,
     required super.priority,
     required super.assignedUserId,
     required super.assignedBy,
@@ -27,13 +28,15 @@ class TaskModel extends TaskEntity {
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     final createdAt = _parseTimestamp(json['createdAt']) ?? DateTime.now();
     final updatedAt = _parseTimestamp(json['updatedAt']) ?? createdAt;
+
     return TaskModel(
       id: json['id'] as String,
       projectId: json['projectId'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      isCompleted: json['isCompleted'] as bool,
-      priority: _priorityFromString(json['priority'] as String),
+      isCompleted: json['isCompleted'] as bool? ?? false,
+      progressStatus: _progressStatusFromString(json['progressStatus']),
+      priority: _priorityFromString(json['priority'] as String? ?? 'medium'),
       assignedUserId: json['assignedUserId'] as String?,
       assignedBy: json['assignedBy'] as String?,
       dueDate: _parseTimestamp(json['dueDate']),
@@ -51,11 +54,14 @@ class TaskModel extends TaskEntity {
       'title': title,
       'description': description,
       'isCompleted': isCompleted,
+      'progressStatus': progressStatus.name,
       'priority': priority.name,
       'assignedUserId': assignedUserId,
       'assignedBy': assignedBy,
-      // لا نكتب الحقل إطلاقًا لو فارغ حتى تستبعد استعلامات dueDate المهام بلا موعد.
+
+      // لا نكتب الحقل لو فارغ.
       if (dueDate != null) 'dueDate': Timestamp.fromDate(dueDate!),
+
       'isNotifiedBeforeDue': isNotifiedBeforeDue,
       'isNotifiedAtDue': isNotifiedAtDue,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -70,6 +76,7 @@ class TaskModel extends TaskEntity {
       title: entity.title,
       description: entity.description,
       isCompleted: entity.isCompleted,
+      progressStatus: entity.progressStatus,
       priority: entity.priority,
       assignedUserId: entity.assignedUserId,
       assignedBy: entity.assignedBy,
@@ -86,6 +93,7 @@ class TaskModel extends TaskEntity {
       title: title,
       description: description,
       isCompleted: isCompleted,
+      progressStatus: progressStatus,
       priority: priority,
       assignedUserId: assignedUserId,
       assignedBy: assignedBy,
@@ -116,6 +124,16 @@ class TaskModel extends TaskEntity {
       case 'medium':
       default:
         return TaskPriority.medium;
+    }
+  }
+
+  static TaskProgressStatus _progressStatusFromString(dynamic value) {
+    switch (value) {
+      case 'inProgress':
+        return TaskProgressStatus.inProgress;
+      case 'notStarted':
+      default:
+        return TaskProgressStatus.notStarted;
     }
   }
 }

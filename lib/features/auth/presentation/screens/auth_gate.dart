@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,23 +32,37 @@ class _AuthGateState extends State<AuthGate> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
+        debugPrint(
+          'AUTH GATE: status = ${authProvider.status}, '
+              'user = ${authProvider.user}',
+        );
+
         switch (authProvider.status) {
           case AuthStatus.initial:
           case AuthStatus.loading:
             return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+              key: ValueKey('auth_loading'),
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
             );
 
           case AuthStatus.authenticated:
             if (authProvider.user?.role == UserRole.admin) {
-              return const AdminNavigationScreen();
+              return const AdminNavigationScreen(
+                key: ValueKey('admin_navigation'),
+              );
             }
 
-            return const UserNavigationScreen();
+            return const UserNavigationScreen(
+              key: ValueKey('user_navigation'),
+            );
 
           case AuthStatus.unauthenticated:
           case AuthStatus.failure:
-            return const LoginScreen();
+            return const LoginScreen(
+              key: ValueKey('login_screen'),
+            );
         }
       },
     );

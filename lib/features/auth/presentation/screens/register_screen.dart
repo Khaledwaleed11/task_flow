@@ -52,15 +52,13 @@ class _RegisterScreenState extends State<RegisterScreen>
       curve: Curves.easeOut,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -97,9 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       return 'Please enter your email.';
     }
 
-    final emailRegex = RegExp(
-      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-    );
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
     if (!emailRegex.hasMatch(email)) {
       return 'Please enter a valid email.';
@@ -151,9 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       password: _passwordController.text,
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (success) {
       Navigator.of(context).pop(true);
@@ -165,8 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(
-            authProvider.errorMessage ??
-                'Failed to create account.',
+            authProvider.errorMessage ?? 'Failed to create account.',
           ),
           backgroundColor: AppColors.error,
         ),
@@ -196,34 +189,34 @@ class _RegisterScreenState extends State<RegisterScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: Stack(
         children: [
           Positioned(
-            top: -120,
-            left: -110,
-            child: Container(
-              width: 290,
-              height: 290,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(
-                  alpha: isDark ? 0.12 : 0.07,
-                ),
-              ),
+            top: -145,
+            left: -120,
+            child: _buildDecoration(
+              size: 330,
+              color: AppColors.primary,
+              opacity: isDark ? 0.16 : 0.09,
             ),
           ),
           Positioned(
-            bottom: -160,
+            bottom: -165,
             right: -130,
-            child: Container(
-              width: 330,
-              height: 330,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primarySoft.withValues(
-                  alpha: isDark ? 0.08 : 0.7,
-                ),
-              ),
+            child: _buildDecoration(
+              size: 350,
+              color: AppColors.warning,
+              opacity: isDark ? 0.08 : 0.07,
+            ),
+          ),
+          Positioned(
+            top: 270,
+            right: -45,
+            child: _buildDecoration(
+              size: 100,
+              color: AppColors.primary,
+              opacity: isDark ? 0.07 : 0.045,
             ),
           ),
           SafeArea(
@@ -231,16 +224,10 @@ class _RegisterScreenState extends State<RegisterScreen>
               builder: (context, authProvider, child) {
                 return Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(
-                      20,
-                      20,
-                      20,
-                      28,
-                    ),
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 470,
-                      ),
+                      constraints: const BoxConstraints(maxWidth: 470),
                       child: SlideTransition(
                         position: _slideAnimation,
                         child: FadeTransition(
@@ -248,90 +235,110 @@ class _RegisterScreenState extends State<RegisterScreen>
                           child: Form(
                             key: _formKey,
                             child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.stretch,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 RegisterBackButton(
                                   onPressed: _backToLogin,
                                 ),
+
                                 const SizedBox(height: 24),
+
                                 const RegisterBrand(),
-                                const SizedBox(height: 38),
+
+                                const SizedBox(height: 34),
+
                                 const RegisterWelcomeHeader(),
+
                                 const SizedBox(height: 28),
-                                RegisterFormCard(
-                                  nameController: _nameController,
-                                  emailController: _emailController,
-                                  passwordController:
-                                  _passwordController,
-                                  confirmPasswordController:
-                                  _confirmPasswordController,
-                                  obscurePassword:
-                                  _obscurePassword,
-                                  obscureConfirmPassword:
-                                  _obscureConfirmPassword,
-                                  isLoading:
-                                  authProvider.isLoading,
-                                  nameValidator:
-                                  _validateName,
-                                  emailValidator:
-                                  _validateEmail,
-                                  passwordValidator:
-                                  _validatePassword,
-                                  confirmPasswordValidator:
-                                  _validateConfirmPassword,
-                                  onTogglePassword:
-                                  _togglePasswordVisibility,
-                                  onToggleConfirmPassword:
-                                  _toggleConfirmPasswordVisibility,
-                                  onSubmit: _register,
+
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? AppColors.darkSurface
+                                        : AppColors.surface,
+                                    borderRadius: BorderRadius.circular(28),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.06)
+                                          : AppColors.border.withValues(
+                                              alpha: 0.8,
+                                            ),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: isDark ? 0.12 : 0.035,
+                                        ),
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 12),
+                                      ),
+                                    ],
+                                  ),
+                                  child: RegisterFormCard(
+                                    nameController: _nameController,
+                                    emailController: _emailController,
+                                    passwordController: _passwordController,
+                                    confirmPasswordController:
+                                        _confirmPasswordController,
+                                    obscurePassword: _obscurePassword,
+                                    obscureConfirmPassword:
+                                        _obscureConfirmPassword,
+                                    isLoading: authProvider.isLoading,
+                                    nameValidator: _validateName,
+                                    emailValidator: _validateEmail,
+                                    passwordValidator: _validatePassword,
+                                    confirmPasswordValidator:
+                                        _validateConfirmPassword,
+                                    onTogglePassword: _togglePasswordVisibility,
+                                    onToggleConfirmPassword:
+                                        _toggleConfirmPasswordVisibility,
+                                    onSubmit: _register,
+                                  ),
                                 ),
+
                                 const SizedBox(height: 24),
+
                                 Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Flexible(
                                       child: Text(
                                         'Already have an account?',
-                                        style: AppTextStyles
-                                            .bodySecondary
+                                        style: AppTextStyles.bodySecondary
                                             .copyWith(
-                                          color: colorScheme
-                                              .onSurfaceVariant,
-                                        ),
+                                              color:
+                                                  colorScheme.onSurfaceVariant,
+                                            ),
                                       ),
                                     ),
                                     const SizedBox(width: 4),
                                     TextButton(
                                       onPressed: _backToLogin,
                                       style: TextButton.styleFrom(
-                                        foregroundColor:
-                                        colorScheme.primary,
-                                        padding:
-                                        const EdgeInsets.symmetric(
+                                        foregroundColor: AppColors.primary,
+                                        padding: const EdgeInsets.symmetric(
                                           horizontal: 6,
                                           vertical: 4,
                                         ),
                                         minimumSize: Size.zero,
                                         tapTargetSize:
-                                        MaterialTapTargetSize
-                                            .shrinkWrap,
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         'Sign In',
                                         style: TextStyle(
-                                          color:
-                                          colorScheme.primary,
-                                          fontWeight:
-                                          FontWeight.w700,
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w700,
                                           fontSize: 14,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 14),
+
+                                const SizedBox(height: 18),
+
                                 const AuthDivider(),
                               ],
                             ),
@@ -345,6 +352,21 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDecoration({
+    required double size,
+    required Color color,
+    required double opacity,
+  }) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withValues(alpha: opacity),
       ),
     );
   }

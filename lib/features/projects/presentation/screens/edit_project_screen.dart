@@ -1,7 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/project_entity.dart';
 import '../providers/project_provider.dart';
 import '../widgets/project_form_header.dart';
@@ -23,8 +24,8 @@ class _EditProjectScreenState extends State<EditProjectScreen>
 
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
-  late final AnimationController _animationController;
 
+  late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
   late final Animation<Offset> _slideAnimation;
 
@@ -33,7 +34,6 @@ class _EditProjectScreenState extends State<EditProjectScreen>
     super.initState();
 
     _nameController = TextEditingController(text: widget.project.name);
-
     _descriptionController = TextEditingController(
       text: widget.project.description,
     );
@@ -50,13 +50,15 @@ class _EditProjectScreenState extends State<EditProjectScreen>
       curve: Curves.easeOut,
     );
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     _animationController.forward();
   }
@@ -107,9 +109,7 @@ class _EditProjectScreenState extends State<EditProjectScreen>
       description: _descriptionController.text.trim(),
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -131,7 +131,9 @@ class _EditProjectScreenState extends State<EditProjectScreen>
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(provider.errorMessage ?? 'Failed to update project'),
+          content: Text(
+            provider.errorMessage ?? 'Failed to update project',
+          ),
           backgroundColor: colorScheme.error,
         ),
       );
@@ -144,6 +146,7 @@ class _EditProjectScreenState extends State<EditProjectScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Consumer<ProjectProvider>(
           builder: (context, provider, child) {
@@ -162,17 +165,19 @@ class _EditProjectScreenState extends State<EditProjectScreen>
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _EditProjectTopBar(
-                              onBack: () {
-                                Navigator.of(context).pop();
-                              },
+                              onBack: () => Navigator.pop(context),
                             ),
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 28),
+
                             const ProjectFormHeader(
                               title: 'Edit Project',
-                              subtitle: 'Update your project information and keep it organized.',
+                              subtitle:
+                              'Make updates and keep your workspace organized.',
                               icon: Icons.edit_rounded,
                             ),
-                            const SizedBox(height: 30),
+
+                            const SizedBox(height: 28),
+
                             Container(
                               padding: const EdgeInsets.all(22),
                               decoration: BoxDecoration(
@@ -180,16 +185,16 @@ class _EditProjectScreenState extends State<EditProjectScreen>
                                 borderRadius: BorderRadius.circular(26),
                                 border: Border.all(
                                   color: colorScheme.outline.withValues(
-                                    alpha: isDark ? 0.55 : 0.7,
+                                    alpha: isDark ? 0.45 : 0.65,
                                   ),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(
-                                      alpha: isDark ? 0.10 : 0.025,
+                                      alpha: isDark ? 0.12 : 0.035,
                                     ),
-                                    blurRadius: 30,
-                                    offset: const Offset(0, 14),
+                                    blurRadius: 28,
+                                    offset: const Offset(0, 12),
                                   ),
                                 ],
                               ),
@@ -199,73 +204,101 @@ class _EditProjectScreenState extends State<EditProjectScreen>
                                   Row(
                                     children: [
                                       Container(
-                                        width: 42,
-                                        height: 42,
+                                        width: 46,
+                                        height: 46,
                                         decoration: BoxDecoration(
-                                          color: colorScheme.primary.withValues(
-                                            alpha: 0.10,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            13,
-                                          ),
+                                          color: AppColors.primarySoft,
+                                          borderRadius:
+                                          BorderRadius.circular(15),
                                         ),
-                                        child: Icon(
-                                          Icons.edit_note_rounded,
-                                          color: colorScheme.primary,
-                                          size: 22,
+                                        child: const Icon(
+                                          Icons.folder_open_rounded,
+                                          color: AppColors.primary,
+                                          size: 23,
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
+                                      const SizedBox(width: 13),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Project information',
-                                              style: AppTextStyles.title
-                                                  .copyWith(
-                                                    color:
-                                                        colorScheme.onSurface,
-                                                  ),
+                                              'Project details',
+                                              style: theme
+                                                  .textTheme.titleMedium
+                                                  ?.copyWith(
+                                                color: colorScheme.onSurface,
+                                                fontWeight: FontWeight.w800,
+                                              ),
                                             ),
-                                            const SizedBox(height: 3),
+                                            const SizedBox(height: 4),
                                             Text(
-                                              'Update the details of your project.',
-                                              style: AppTextStyles.bodySecondary
-                                                  .copyWith(
-                                                    color: colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
+                                              'Edit the information below.',
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color: colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 7,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.warning.withValues(
+                                            alpha: 0.12,
+                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                        ),
+                                        child: const Text(
+                                          'EDIT',
+                                          style: TextStyle(
+                                            color: AppColors.warning,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.8,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                  const SizedBox(height: 22),
+
+                                  const SizedBox(height: 24),
+
                                   ProjectInformationCard(
                                     nameController: _nameController,
                                     descriptionController:
-                                        _descriptionController,
+                                    _descriptionController,
                                     nameLabel: 'Project Name',
                                     nameHint: 'Enter your project name',
                                     descriptionLabel: 'Description',
                                     descriptionHint:
-                                        'Describe what this project is about',
+                                    'Describe what this project is about',
                                     nameValidator: _validateName,
                                   ),
+
                                   const SizedBox(height: 8),
+
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                       '${_descriptionController.text.length}/500',
-                                      style: AppTextStyles.caption.copyWith(
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
                                         color: colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 22),
+
+                                  const SizedBox(height: 24),
+
                                   ProjectSubmitButton(
                                     isLoading: provider.isLoading,
                                     label: 'Save Changes',
@@ -276,24 +309,49 @@ class _EditProjectScreenState extends State<EditProjectScreen>
                                 ],
                               ),
                             ),
+
                             const SizedBox(height: 18),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.info_outline_rounded,
-                                  size: 14,
-                                  color: colorScheme.onSurfaceVariant,
+
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 13,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primarySoft.withValues(
+                                  alpha: isDark ? 0.10 : 0.75,
                                 ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Changes will be saved to your workspace.',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                    fontSize: 11,
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.12,
                                   ),
                                 ),
-                              ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.info_outline_rounded,
+                                    color: AppColors.primary,
+                                    size: 17,
+                                  ),
+                                  const SizedBox(width: 9),
+                                  Flexible(
+                                    child: Text(
+                                      'Your changes will be saved to your workspace.',
+                                      textAlign: TextAlign.center,
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                        color: isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.primaryDark,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -321,23 +379,63 @@ class _EditProjectTopBar extends StatelessWidget {
 
     return Row(
       children: [
-        IconButton(
-          onPressed: onBack,
-          tooltip: 'Back',
-          style: IconButton.styleFrom(
-            backgroundColor: colorScheme.surface,
-            foregroundColor: colorScheme.onSurface,
-            fixedSize: const Size(44, 44),
-            side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.7)),
+        Material(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            onTap: onBack,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: colorScheme.onSurface,
+                size: 21,
+              ),
+            ),
           ),
-          icon: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
-        const SizedBox(width: 12),
-        Text(
-          'Edit Project',
-          style: AppTextStyles.title.copyWith(
-            fontSize: 17,
-            color: colorScheme.onSurface,
+        const SizedBox(width: 13),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Workspace',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Edit Project',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: const Icon(
+            Icons.edit_note_rounded,
+            color: AppColors.warning,
+            size: 23,
           ),
         ),
       ],

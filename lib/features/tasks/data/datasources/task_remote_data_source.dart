@@ -47,7 +47,10 @@ abstract class TaskRemoteDataSource {
     required String taskId,
     required bool isCompleted,
   });
-
+  Future<void> startTask({
+    required String projectId,
+    required String taskId,
+  });
   Future<void> toggleTaskCompletion({
     required String projectId,
     required String taskId,
@@ -68,6 +71,7 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
   DocumentReference<Map<String, dynamic>> _projectDocument(String projectId) {
     return firestore.collection('projects').doc(projectId);
   }
+
 
   @override
   Future<TaskModel> createTask({
@@ -109,14 +113,77 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
 
       await batch.commit();
 
+      if (assignedUserId != null && assignedUserId.isNotEmpty) {
+        await _syncProjectAssignedUsers(projectId);
+      }
+
       return task;
     } on FirebaseException catch (e) {
-      throw TaskException(e.message ?? 'Failed to create task.');
-    } catch (_) {
-      throw const TaskException('Failed to create task.');
+      debugPrint(
+        'CREATE TASK FIREBASE ERROR: ${e.code} - ${e.message}',
+      );
+      throw TaskException(
+        'Firebase ${e.code}: ${e.message ?? 'Failed to create task.'}',
+      );
+    } catch (e) {
+      debugPrint('CREATE TASK ERROR: $e');
+      throw TaskException('Failed to create task: $e');
     }
   }
+  @override
+  Future<void> startTask({
+    required String projectId,
+    required String taskId,
+  }) async {
+    try {
+      final taskDocument = _tasksCollection(projectId).doc(taskId);
 
+      await firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(taskDocument);
+
+        if (!snapshot.exists) {
+          throw const TaskException('Task not found.');
+        }
+
+        final data = snapshot.data();
+
+        if (data == null) {
+          throw const TaskException('Task data not found.');
+        }
+
+        if (data['isCompleted'] == true) {
+          throw const TaskException('Completed tasks cannot be started.');
+        }
+
+        transaction.update(taskDocument, {
+          'progressStatus': TaskProgressStatus.inProgress.name,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      });
+    } on TaskException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      throw TaskException(
+        e.message ?? 'Failed to start task.',
+      );
+    } catch (e) {
+      throw TaskException('Failed to start task: $e');
+    }
+  }
+  Future<void> _syncProjectAssignedUsers(String projectId) async {
+    final taskSnapshot = await _tasksCollection(projectId).get();
+
+    final assignedUserIds = taskSnapshot.docs
+        .map((document) => document.data()['assignedUserId'])
+        .whereType<String>()
+        .where((userId) => userId.isNotEmpty)
+        .toSet()
+        .toList();
+
+    await _projectDocument(projectId).update({
+      'assignedUserIds': assignedUserIds,
+    });
+  }
   @override
   Future<List<TaskModel>> getTasks({required String projectId}) async {
     try {
@@ -245,16 +312,15 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
         'description': description,
         'priority': priority,
         'assignedUserId': assignedUserId,
-        // حذف الحقل لو أُزيل الموعد حتى لا تظل المهمة مرشّحة لجدولة إشعار منتهٍ.
         if (dueDate == null) 'dueDate': FieldValue.delete(),
         if (dueDate != null) 'dueDate': Timestamp.fromDate(dueDate),
-        // نحدّث المنسِّب فقط عند تغيّر الإسناد فعليًا.
         if (assignedUserId != null &&
             assignedBy != null &&
             assignedUserId != previousAssignee)
           'assignedBy': assignedBy,
         'updatedAt': FieldValue.serverTimestamp(),
       });
+      await _syncProjectAssignedUsers(projectId);
     } on FirebaseException catch (e) {
       throw TaskException(e.message ?? 'Failed to update task.');
     } catch (_) {
@@ -288,12 +354,15 @@ class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
       batch.update(projectDocument, projectUpdates);
 
       await batch.commit();
+      await _syncProjectAssignedUsers(projectId);
     } on FirebaseException catch (e) {
       throw TaskException(e.message ?? 'Failed to delete task.');
     } catch (_) {
       throw const TaskException('Failed to delete task.');
     }
   }
+
+
 
   @override
   Future<void> toggleTaskCompletion({

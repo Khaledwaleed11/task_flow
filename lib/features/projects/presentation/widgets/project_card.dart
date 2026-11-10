@@ -13,6 +13,8 @@ class ProjectCard extends StatelessWidget {
   final int? completedTasks;
   final int? pendingTasks;
   final double? progress;
+  final bool showProjectDetails;
+  final bool isInteractive;
 
   const ProjectCard({
     super.key,
@@ -25,6 +27,8 @@ class ProjectCard extends StatelessWidget {
     this.completedTasks,
     this.pendingTasks,
     this.progress,
+    this.showProjectDetails = true,
+    this.isInteractive = true,
   });
 
   @override
@@ -51,7 +55,7 @@ class ProjectCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: isInteractive ? onTap : null,
         borderRadius: BorderRadius.circular(24),
         child: Ink(
           decoration: BoxDecoration(

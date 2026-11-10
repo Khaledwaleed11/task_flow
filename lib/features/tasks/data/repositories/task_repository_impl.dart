@@ -45,7 +45,24 @@ class TaskRepositoryImpl implements TaskRepository {
       return const Left(TaskFailure('Failed to create task.'));
     }
   }
+  @override
+  Future<Either<Failure, Unit>> startTask({
+    required String projectId,
+    required String taskId,
+  }) async {
+    try {
+      await remoteDataSource.startTask(
+        projectId: projectId,
+        taskId: taskId,
+      );
 
+      return const Right(unit);
+    } on TaskException catch (e) {
+      return Left(TaskFailure(e.message));
+    } catch (_) {
+      return const Left(TaskFailure('Failed to start task.'));
+    }
+  }
   @override
   Future<Either<Failure, List<TaskEntity>>> getTasks({
     required String projectId,

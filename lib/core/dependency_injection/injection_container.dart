@@ -44,7 +44,7 @@ import '../../features/tasks/domain/usecases/update_task.dart';
 import '../../features/tasks/domain/usecases/watch_tasks.dart';
 import '../auth/current_user_provider.dart';
 import '../auth/firebase_current_user_provider.dart';
-
+import '../../features/tasks/domain/usecases/start_task.dart';
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -178,7 +178,11 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton<ToggleTaskCompletion>(
     () => ToggleTaskCompletion(sl<TaskRepository>()),
-  );  sl.registerLazySingleton<WatchAllTasks>(
+  );
+  sl.registerLazySingleton<StartTask>(
+        () => StartTask(sl<TaskRepository>()),
+  );
+  sl.registerLazySingleton<WatchAllTasks>(
     () => WatchAllTasks(sl<TaskRepository>()),
   );
 

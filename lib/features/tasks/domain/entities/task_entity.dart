@@ -1,4 +1,10 @@
+
 enum TaskPriority { low, medium, high }
+
+enum TaskProgressStatus {
+  notStarted,
+  inProgress,
+}
 
 class TaskEntity {
   final String id;
@@ -6,6 +12,7 @@ class TaskEntity {
   final String title;
   final String description;
   final bool isCompleted;
+  final TaskProgressStatus progressStatus;
   final TaskPriority priority;
   final String? assignedUserId;
   final String? assignedBy;
@@ -19,6 +26,7 @@ class TaskEntity {
     required this.title,
     required this.description,
     required this.isCompleted,
+    this.progressStatus = TaskProgressStatus.notStarted,
     required this.priority,
     required this.assignedUserId,
     required this.assignedBy,
@@ -33,6 +41,7 @@ class TaskEntity {
     String? title,
     String? description,
     bool? isCompleted,
+    TaskProgressStatus? progressStatus,
     TaskPriority? priority,
     String? assignedUserId,
     String? assignedBy,
@@ -46,6 +55,7 @@ class TaskEntity {
       title: title ?? this.title,
       description: description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
+      progressStatus: progressStatus ?? this.progressStatus,
       priority: priority ?? this.priority,
       assignedUserId: assignedUserId ?? this.assignedUserId,
       assignedBy: assignedBy ?? this.assignedBy,

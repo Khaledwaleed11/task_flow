@@ -136,28 +136,33 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> logout() async {
+    debugPrint('LOGOUT: Started');
+
     _setLoading();
 
-    final result = await logoutUseCase(
-      const NoParams(),
-    );
+    final result = await logoutUseCase(const NoParams());
 
     return result.fold(
           (failure) {
+        debugPrint('LOGOUT: Failed - ${failure.message}');
         _setFailure(failure.message);
         return false;
       },
           (_) {
+        debugPrint('LOGOUT: Firebase sign out succeeded');
+
         _user = null;
         _status = AuthStatus.unauthenticated;
         _clearError();
+
+        debugPrint('LOGOUT: Status = $_status, User = $_user');
+
         notifyListeners();
 
         return true;
       },
     );
   }
-
   void updateUser(UserEntity user) {
     _user = user;
     _status = AuthStatus.authenticated;

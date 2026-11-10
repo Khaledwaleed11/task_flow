@@ -27,13 +27,18 @@ class _AdminNavigationScreenState extends State<AdminNavigationScreen> {
     const AdminTasksScreen(),
     ChangeNotifierProvider<AdminUserProvider>(
       create: (_) => sl<AdminUserProvider>(),
-      child: AdminUsersScreen(),
+      child: const AdminUsersScreen(),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark
+          ? const Color(0xFF101D22)
+          : const Color(0xFFF5F8F8),
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
@@ -41,6 +46,8 @@ class _AdminNavigationScreenState extends State<AdminNavigationScreen> {
       bottomNavigationBar: AppBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
+          if (index == _selectedIndex) return;
+
           setState(() {
             _selectedIndex = index;
           });

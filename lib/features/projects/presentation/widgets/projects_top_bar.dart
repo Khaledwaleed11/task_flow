@@ -7,6 +7,7 @@ class ProjectsTopBar extends StatelessWidget {
   final VoidCallback? onBack;
   final VoidCallback onCreate;
   final bool showBackButton;
+  final bool showCreateButton;
 
 
   const ProjectsTopBar({
@@ -15,6 +16,7 @@ class ProjectsTopBar extends StatelessWidget {
     this.showBackButton = true,
     this.onBack,
     required this.onCreate,
+    this.showCreateButton = true,
   });
 
   @override
@@ -45,19 +47,20 @@ class ProjectsTopBar extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back_rounded, size: 20),
               ),
             const Spacer(),
-            IconButton(
-              onPressed: onCreate,
-              tooltip: 'New project',
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                fixedSize: const Size(44, 44),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+            if (showCreateButton)
+              IconButton(
+                onPressed: onCreate,
+                tooltip: 'New project',
+                style: IconButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  fixedSize: const Size(44, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
+                icon: const Icon(Icons.add_rounded, size: 21),
               ),
-              icon: const Icon(Icons.add_rounded, size: 21),
-            ),
           ],
         ),
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../admin/presentation/providers/admin_user_provider.dart';
 import '../../domain/entities/task_entity.dart';
 import '../providers/task_provider.dart';
@@ -10,7 +10,6 @@ import '../widgets/edit_task_completion_status.dart';
 import '../widgets/edit_task_header.dart';
 import '../widgets/edit_task_information_card.dart';
 import '../widgets/edit_task_priority_selector.dart';
-import '../widgets/edit_task_section_label.dart';
 import '../widgets/save_task_button.dart';
 import '../widgets/task_due_date_selector.dart';
 
@@ -42,8 +41,20 @@ class _EditTaskScreenState extends State<EditTaskScreen>
   late TaskPriority _selectedPriority;
 
   String? _selectedUserId;
-
   DateTime? _dueDate;
+
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get _background =>
+      _isDark ? AppColors.darkBackground : AppColors.background;
+
+  Color get _surface => _isDark ? AppColors.darkSurface : AppColors.surface;
+
+  Color get _textPrimary =>
+      _isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+
+  Color get _textSecondary =>
+      _isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
 
   @override
   void initState() {
@@ -72,7 +83,7 @@ class _EditTaskScreenState extends State<EditTaskScreen>
     );
 
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(
+        Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
           CurvedAnimation(
             parent: _animationController,
             curve: Curves.easeOutCubic,
@@ -82,9 +93,7 @@ class _EditTaskScreenState extends State<EditTaskScreen>
     _animationController.forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       final provider = context.read<AdminUserProvider>();
 
@@ -95,11 +104,9 @@ class _EditTaskScreenState extends State<EditTaskScreen>
   }
 
   void _onDescriptionChanged() {
-    if (!mounted) {
-      return;
+    if (mounted) {
+      setState(() {});
     }
-
-    setState(() {});
   }
 
   @override
@@ -118,9 +125,7 @@ class _EditTaskScreenState extends State<EditTaskScreen>
   Future<void> _updateTask() async {
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     if (_dueDate != null && _dueDate!.isBefore(DateTime.now())) {
       ScaffoldMessenger.of(context)
@@ -147,9 +152,7 @@ class _EditTaskScreenState extends State<EditTaskScreen>
       dueDate: _dueDate,
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (success) {
       Navigator.pop(context);
@@ -190,14 +193,15 @@ class _EditTaskScreenState extends State<EditTaskScreen>
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
     final userProvider = context.watch<AdminUserProvider>();
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: _background,
       body: SafeArea(
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 40),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 36),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 650),
@@ -208,54 +212,35 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        EditTaskHeader(
-                          onBack: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        const SizedBox(height: 28),
+                        EditTaskHeader(onBack: () => Navigator.pop(context)),
 
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surface,
-                            borderRadius: BorderRadius.circular(26),
-                            border: Border.all(
-                              color: colorScheme.outline.withValues(alpha: 0.7),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(
-                                  alpha:
-                                      colorScheme.brightness == Brightness.dark
-                                      ? 0.10
-                                      : 0.025,
-                                ),
-                                blurRadius: 30,
-                                offset: const Offset(0, 14),
-                              ),
-                            ],
-                          ),
+                        const SizedBox(height: 24),
+
+                        _buildIntroCard(),
+
+                        const SizedBox(height: 24),
+
+                        _buildSectionCard(
+                          number: '01',
+                          icon: Icons.edit_note_rounded,
+                          title: 'Task information',
+                          subtitle: 'Update the details of this task.',
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const EditTaskSectionLabel(
-                                icon: Icons.edit_note_rounded,
-                                title: 'Task information',
-                                subtitle: 'Update the details of this task.',
-                              ),
-                              const SizedBox(height: 20),
                               EditTaskInformationCard(
                                 titleController: _titleController,
                                 descriptionController: _descriptionController,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 10),
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   '${_descriptionController.text.length}/500',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
+                                  style: TextStyle(
+                                    color: _textSecondary,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
@@ -265,25 +250,14 @@ class _EditTaskScreenState extends State<EditTaskScreen>
 
                         const SizedBox(height: 18),
 
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surface,
-                            borderRadius: BorderRadius.circular(26),
-                            border: Border.all(
-                              color: colorScheme.outline.withValues(alpha: 0.7),
-                            ),
-                          ),
+                        _buildSectionCard(
+                          number: '02',
+                          icon: Icons.tune_rounded,
+                          title: 'Task settings',
+                          subtitle: 'Manage priority, assignment and deadline.',
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const EditTaskSectionLabel(
-                                icon: Icons.tune_rounded,
-                                title: 'Task settings',
-                                subtitle: 'Update priority and assignment.',
-                              ),
-                              const SizedBox(height: 20),
-
                               EditTaskPrioritySelector(
                                 selectedPriority: _selectedPriority,
                                 onChanged: (priority) {
@@ -293,7 +267,9 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                                 },
                               ),
 
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
+                              _buildInnerDivider(),
+                              const SizedBox(height: 24),
 
                               EditTaskAssignmentSection(
                                 provider: userProvider,
@@ -305,7 +281,9 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                                 },
                               ),
 
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
+                              _buildInnerDivider(),
+                              const SizedBox(height: 24),
 
                               TaskDueDateSelector(
                                 dueDate: _dueDate,
@@ -315,77 +293,36 @@ class _EditTaskScreenState extends State<EditTaskScreen>
                                   });
                                 },
                               ),
-
-                              const SizedBox(height: 20),
-
-                              EditTaskCompletionStatus(
-                                isCompleted: widget.task.isCompleted,
-                              ),
                             ],
                           ),
                         ),
 
                         const SizedBox(height: 18),
 
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(
-                              color: colorScheme.primary.withValues(
-                                alpha: 0.12,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.info_outline_rounded,
-                                color: colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Task completion is managed by the assigned user and cannot be changed here.',
-                                  style: AppTextStyles.bodySecondary.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ),
-                            ],
+                        _buildSectionCard(
+                          number: '03',
+                          icon: Icons.task_alt_rounded,
+                          title: 'Completion status',
+                          subtitle: 'Current progress of this task.',
+                          child: EditTaskCompletionStatus(
+                            isCompleted: widget.task.isCompleted,
                           ),
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
+
+                        _buildInfoCard(),
+
+                        const SizedBox(height: 26),
 
                         SaveTaskButton(
                           isLoading: taskProvider.isActionLoading,
                           onPressed: _updateTask,
                         ),
 
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.lock_outline_rounded,
-                              size: 14,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Your task changes are securely stored.',
-                              style: AppTextStyles.caption.copyWith(
-                                fontSize: 10.5,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
+                        _buildFooter(),
                       ],
                     ),
                   ),
@@ -395,6 +332,259 @@ class _EditTaskScreenState extends State<EditTaskScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildIntroCard() {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryDark],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.22),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -12,
+            top: -20,
+            child: Icon(
+              Icons.edit_document,
+              size: 110,
+              color: Colors.white.withValues(alpha: 0.08),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.edit_rounded, color: Colors.white, size: 14),
+                    SizedBox(width: 7),
+                    Text(
+                      'EDIT TASK',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'Make it better.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 27,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                ),
+              ),
+              const SizedBox(height: 9),
+              Text(
+                'Update the task details and keep your\nteam aligned with the latest changes.',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.82),
+                  fontSize: 12.5,
+                  height: 1.6,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String number,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : AppColors.border,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: _isDark ? 0.10 : 0.025),
+            blurRadius: 22,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 23),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: _textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: _textSecondary, fontSize: 11.5),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Text(
+                  number,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInnerDivider() {
+    return Container(
+      height: 1,
+      color: _isDark ? Colors.white.withValues(alpha: 0.07) : AppColors.divider,
+    );
+  }
+
+  Widget _buildInfoCard() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: _isDark ? 0.10 : 0.09),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppColors.warning.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.info_outline_rounded,
+              color: AppColors.warning,
+              size: 21,
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Good to know',
+                  style: TextStyle(
+                    color: _textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'Task completion is managed by the assigned user and cannot be changed here.',
+                  style: TextStyle(
+                    color: _textSecondary,
+                    fontSize: 11.5,
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.shield_outlined, size: 15, color: _textSecondary),
+        const SizedBox(width: 7),
+        Text(
+          'Your task changes are securely stored.',
+          style: TextStyle(
+            color: _textSecondary,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

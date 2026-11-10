@@ -1,3 +1,4 @@
+
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures/failure.dart';
@@ -50,6 +51,11 @@ abstract class TaskRepository {
     required String projectId,
     required String taskId,
     required bool isCompleted,
+  });
+
+  Future<Either<Failure, Unit>> startTask({
+    required String projectId,
+    required String taskId,
   });
 
   Future<Either<Failure, Unit>> toggleTaskCompletion({

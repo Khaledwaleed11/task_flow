@@ -1,35 +1,36 @@
+
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  // Brand - Olive
-  static const Color primary = Color(0xFF6B7A3D);
-  static const Color primaryDark = Color(0xFF55632F);
-  static const Color primarySoft = Color(0xFFEEF1E4);
+  // Brand - Teal
+  static const Color primary = Color(0xFF087F8C);
+  static const Color primaryDark = Color(0xFF066570);
+  static const Color primarySoft = Color(0xFFE2F3F1);
 
   // Backgrounds
-  static const Color background = Color(0xFFF7F8F3);
+  static const Color background = Color(0xFFF5F8F8);
   static const Color surface = Color(0xFFFFFFFF);
 
   // Text
-  static const Color textPrimary = Color(0xFF1B2116);
-  static const Color textSecondary = Color(0xFF66705D);
-  static const Color textTertiary = Color(0xFF929B89);
+  static const Color textPrimary = Color(0xFF172B35);
+  static const Color textSecondary = Color(0xFF647780);
+  static const Color textTertiary = Color(0xFF91A0A6);
 
-  // Status
-  static const Color success = Color(0xFF5F7A45);
-  static const Color warning = Color(0xFFB08A3C);
-  static const Color error = Color(0xFFC94A4A);
-  static const Color info = Color(0xFF5B7C99);
+  // Status & Accent
+  static const Color success = Color(0xFF26966F);
+  static const Color warning = Color(0xFFF28C38);
+  static const Color error = Color(0xFFD9534F);
+  static const Color info = Color(0xFF3997B8);
 
   // Borders
-  static const Color border = Color(0xFFDDE2D4);
-  static const Color divider = Color(0xFFDDE2D4);
+  static const Color border = Color(0xFFDCE7E8);
+  static const Color divider = Color(0xFFE5ECEC);
 
-  // Dark theme
-  static const Color darkBackground = Color(0xFF11140F);
-  static const Color darkSurface = Color(0xFF1A1F16);
-  static const Color darkCard = Color(0xFF22291D);
+  // Dark Theme
+  static const Color darkBackground = Color(0xFF101D22);
+  static const Color darkSurface = Color(0xFF182A30);
+  static const Color darkCard = Color(0xFF20363D);
 
-  static const Color darkTextPrimary = Color(0xFFF3F5EC);
-  static const Color darkTextSecondary = Color(0xFFC5CBB8);
+  static const Color darkTextPrimary = Color(0xFFF1F7F7);
+  static const Color darkTextSecondary = Color(0xFFB5C8CA);
 }

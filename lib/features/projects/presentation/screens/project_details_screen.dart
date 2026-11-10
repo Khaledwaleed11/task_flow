@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/dependency_injection/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../admin/presentation/providers/admin_user_provider.dart';
 import '../../../projects/domain/entities/project_entity.dart';
 import '../../../tasks/presentation/providers/task_provider.dart';
@@ -15,7 +16,6 @@ import '../widgets/project_info_card.dart';
 import '../widgets/task_statistics_card.dart';
 import '../widgets/tasks_error_view.dart';
 import '../widgets/tasks_loading_state.dart';
-import '../widgets/tasks_section_header.dart';
 
 class ProjectDetailsScreen extends StatelessWidget {
   final ProjectEntity project;
@@ -34,6 +34,7 @@ class ProjectDetailsScreen extends StatelessWidget {
         toggleTaskCompletionUseCase: sl(),
         watchTasksUseCase: sl(),
         watchAssignedTasksUseCase: sl(),
+        startTaskUseCase: sl(),
       )..watchTasks(projectId: project.id),
       child: _ProjectDetailsView(project: project),
     );
@@ -97,15 +98,19 @@ class _ProjectDetailsView extends StatelessWidget {
         final dialogColors = dialogTheme.colorScheme;
 
         return AlertDialog(
+          backgroundColor: dialogColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           title: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
-                  color: dialogColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(14),
+                  color: dialogColors.error.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 child: Icon(
                   Icons.delete_outline_rounded,
@@ -113,13 +118,13 @@ class _ProjectDetailsView extends StatelessWidget {
                   size: 23,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 13),
               Expanded(
                 child: Text(
                   'Delete Task',
                   style: dialogTheme.textTheme.titleLarge?.copyWith(
                     color: dialogColors.onSurface,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -130,26 +135,26 @@ class _ProjectDetailsView extends StatelessWidget {
             'This action cannot be undone.',
             style: dialogTheme.textTheme.bodyMedium?.copyWith(
               color: dialogColors.onSurfaceVariant,
+              height: 1.5,
             ),
           ),
-          actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 18),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
+              onPressed: () => Navigator.pop(dialogContext, false),
               child: Text(
                 'Cancel',
                 style: TextStyle(color: dialogColors.primary),
               ),
             ),
             FilledButton.icon(
-              onPressed: () {
-                Navigator.pop(dialogContext, true);
-              },
+              onPressed: () => Navigator.pop(dialogContext, true),
               style: FilledButton.styleFrom(
                 backgroundColor: dialogColors.error,
                 foregroundColor: dialogColors.onError,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(13),
+                ),
               ),
               icon: const Icon(Icons.delete_outline_rounded, size: 18),
               label: const Text('Delete'),
@@ -159,18 +164,14 @@ class _ProjectDetailsView extends StatelessWidget {
       },
     );
 
-    if (confirmed != true || !context.mounted) {
-      return;
-    }
+    if (confirmed != true || !context.mounted) return;
 
     final success = await provider.deleteTask(
       projectId: project.id,
       taskId: task.id,
     );
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
     final snackBarColor = success ? colorScheme.tertiary : colorScheme.error;
 
@@ -196,12 +197,20 @@ class _ProjectDetailsView extends StatelessWidget {
             ],
           ),
           backgroundColor: snackBarColor,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Consumer<TaskProvider>(
       builder: (context, provider, child) {
         final totalTasks = provider.tasks.length;
@@ -210,9 +219,13 @@ class _ProjectDetailsView extends StatelessWidget {
         final progress = totalTasks == 0 ? 0.0 : completedTasks / totalTasks;
 
         return Scaffold(
+          backgroundColor: isDark
+              ? AppColors.darkBackground
+              : AppColors.background,
           body: SafeArea(
             child: RefreshIndicator(
-              color: Theme.of(context).colorScheme.primary,
+              color: AppColors.primary,
+              backgroundColor: colorScheme.surface,
               onRefresh: () {
                 return provider.getTasks(projectId: project.id);
               },
@@ -224,24 +237,32 @@ class _ProjectDetailsView extends StatelessWidget {
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         ProjectDetailsTopBar(
-                          onBack: () {
-                            Navigator.of(context).pop();
-                          },
+                          onBack: () => Navigator.pop(context),
                         ),
-                        const SizedBox(height: 22),
+
+                        const SizedBox(height: 24),
+
                         ProjectDetailsHero(
                           project: project,
                           totalTasks: totalTasks,
                           completedTasks: completedTasks,
                           progress: progress,
                         ),
+
                         const SizedBox(height: 18),
+
                         ProjectInfoCard(project: project),
+
                         const SizedBox(height: 18),
+
                         TaskStatisticsCard(provider: provider),
+
                         const SizedBox(height: 30),
-                        TasksSectionHeader(taskCount: totalTasks),
-                        const SizedBox(height: 14),
+
+                        _ProjectTasksHeading(taskCount: totalTasks),
+
+                        const SizedBox(height: 15),
+
                         if (provider.status == TaskStatus.loading)
                           const TasksLoadingState()
                         else if (provider.status == TaskStatus.failure)
@@ -257,17 +278,12 @@ class _ProjectDetailsView extends StatelessWidget {
                           const EmptyTasksView()
                         else
                           ...provider.tasks.map((task) {
-                            final isActionLoading =
-                                provider.actionTaskId == task.id &&
-                                provider.actionStatus ==
-                                    TaskActionStatus.loading;
-
                             return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.only(bottom: 13),
                               child: TaskCard(
                                 task: task,
-                                isActionLoading: isActionLoading,
-                                onToggle: null,
+                                isActionLoading: false,
+                                showActions: true,
                                 onEdit: () {
                                   _openEditTask(context, provider, task);
                                 },
@@ -290,13 +306,87 @@ class _ProjectDetailsView extends StatelessWidget {
                 : () {
                     _openCreateTask(context, provider);
                   },
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 5,
             icon: const Icon(Icons.add_task_rounded),
-            label: const Text('Add Task'),
+            label: const Text(
+              'Add Task',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(17),
+            ),
           ),
         );
       },
+    );
+  }
+}
+
+class _ProjectTasksHeading extends StatelessWidget {
+  final int taskCount;
+
+  const _ProjectTasksHeading({required this.taskCount});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 43,
+          height: 43,
+          decoration: BoxDecoration(
+            color: AppColors.primarySoft,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: const Icon(
+            Icons.checklist_rounded,
+            color: AppColors.primary,
+            size: 23,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Project Tasks',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                'Manage and track your project tasks',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.13),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '$taskCount Tasks',
+            style: const TextStyle(
+              color: AppColors.warning,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

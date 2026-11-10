@@ -1,7 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../providers/project_provider.dart';
 import '../widgets/project_form_header.dart';
 import '../widgets/project_information_card.dart';
@@ -41,13 +42,15 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
       curve: Curves.easeOut,
     );
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     _animationController.forward();
   }
@@ -97,9 +100,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
       description: _descriptionController.text.trim(),
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -121,7 +122,9 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(provider.errorMessage ?? 'Failed to create project'),
+          content: Text(
+            provider.errorMessage ?? 'Failed to create project',
+          ),
           backgroundColor: colorScheme.error,
         ),
       );
@@ -134,12 +137,15 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor:
+      isDark ? AppColors.darkBackground : AppColors.background,
       body: SafeArea(
         child: Consumer<ProjectProvider>(
           builder: (context, provider, child) {
             return Form(
               key: _formKey,
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 40),
                 child: Center(
                   child: ConstrainedBox(
@@ -152,110 +158,142 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _CreateProjectTopBar(
-                              onBack: () {
-                                Navigator.of(context).pop();
-                              },
+                              onBack: () => Navigator.pop(context),
                             ),
-                            const SizedBox(height: 30),
-                            const ProjectFormHeader(
-                              title: 'Create Project',
-                              subtitle: 'Create a new project and start organizing your tasks.',
-                              icon: Icons.create_new_folder_rounded,
+
+                            const SizedBox(height: 26),
+
+                            _ProjectHeroCard(),
+
+                            const SizedBox(height: 28),
+
+                            Row(
+                              children: [
+                                Container(
+                                  width: 43,
+                                  height: 43,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.11,
+                                    ),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: const Icon(
+                                    Icons.folder_open_rounded,
+                                    color: AppColors.primary,
+                                    size: 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Project Details',
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                          color: colorScheme.onSurface,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Fill in the information below.',
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 11,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.warning.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'NEW',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: AppColors.warning,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 30),
+
+                            const SizedBox(height: 16),
+
                             Container(
-                              padding: const EdgeInsets.all(22),
+                              padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 color: colorScheme.surface,
-                                borderRadius: BorderRadius.circular(26),
+                                borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
                                   color: colorScheme.outline.withValues(
-                                    alpha: isDark ? 0.55 : 0.7,
+                                    alpha: 0.13,
                                   ),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(
-                                      alpha: isDark ? 0.10 : 0.025,
+                                      alpha: isDark ? 0.12 : 0.035,
                                     ),
-                                    blurRadius: 30,
-                                    offset: const Offset(0, 14),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 9),
                                   ),
                                 ],
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 42,
-                                        height: 42,
-                                        decoration: BoxDecoration(
-                                          color: colorScheme.primary.withValues(
-                                            alpha: 0.10,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            13,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Icons.folder_outlined,
-                                          color: colorScheme.primary,
-                                          size: 21,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Project information',
-                                              style: AppTextStyles.title
-                                                  .copyWith(
-                                                    color:
-                                                        colorScheme.onSurface,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              'Add the basic details for your workspace.',
-                                              style: AppTextStyles.bodySecondary
-                                                  .copyWith(
-                                                    color: colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 22),
                                   ProjectInformationCard(
                                     nameController: _nameController,
                                     descriptionController:
-                                        _descriptionController,
+                                    _descriptionController,
                                     nameLabel: 'Project Name',
                                     nameHint: 'Enter your project name',
                                     descriptionLabel: 'Description',
                                     descriptionHint:
-                                        'Describe what this project is about',
+                                    'Describe what this project is about',
                                     nameValidator: _validateName,
                                   ),
-                                  const SizedBox(height: 8),
+
+                                  const SizedBox(height: 9),
+
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                       '${_descriptionController.text.length}/500',
-                                      style: AppTextStyles.caption.copyWith(
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
                                         color: colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
+
                                   const SizedBox(height: 22),
+
+                                  Container(
+                                    height: 1,
+                                    color: colorScheme.outline.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 20),
+
                                   ProjectSubmitButton(
                                     isLoading: provider.isLoading,
                                     label: 'Create Project',
@@ -266,25 +304,10 @@ class _CreateProjectScreenState extends State<CreateProjectScreen>
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 18),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.lock_outline_rounded,
-                                  size: 14,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Your project data is securely stored.',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
+
+                            const SizedBox(height: 20),
+
+                            _ProjectSecurityNote(),
                           ],
                         ),
                       ),
@@ -307,27 +330,214 @@ class _CreateProjectTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Row(
       children: [
-        IconButton(
-          onPressed: onBack,
-          tooltip: 'Back',
-          style: IconButton.styleFrom(
-            backgroundColor: colorScheme.surface,
-            foregroundColor: colorScheme.onSurface,
-            fixedSize: const Size(44, 44),
-            side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.7)),
+        Material(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            onTap: onBack,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.15),
+                ),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: colorScheme.onSurface,
+                size: 21,
+              ),
+            ),
           ),
-          icon: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
-        const SizedBox(width: 12),
-        Text(
-          'New Project',
-          style: AppTextStyles.title.copyWith(
-            fontSize: 17,
-            color: colorScheme.onSurface,
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'New Project',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Build something great together',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          width: 43,
+          height: 43,
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: const Icon(
+            Icons.add_box_rounded,
+            color: AppColors.warning,
+            size: 22,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProjectHeroCard extends StatelessWidget {
+  const _ProjectHeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(23),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary,
+            AppColors.primaryDark,
+            Color(0xFF07545F),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.20),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -20,
+            top: -35,
+            child: Container(
+              width: 125,
+              height: 125,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 20,
+                ),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.13),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'LET’S GET STARTED',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      'Create your\nnext workspace.',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 9),
+                    Text(
+                      'Bring your team and tasks together in one place.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.78),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.13),
+                  borderRadius: BorderRadius.circular(23),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: const Icon(
+                  Icons.create_new_folder_rounded,
+                  color: AppColors.warning,
+                  size: 37,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectSecurityNote extends StatelessWidget {
+  const _ProjectSecurityNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.lock_outline_rounded,
+          size: 15,
+          color: colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 7),
+        Flexible(
+          child: Text(
+            'Your project data is securely stored.',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],

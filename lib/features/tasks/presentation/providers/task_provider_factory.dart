@@ -1,4 +1,6 @@
 
+import 'package:task_flow/features/tasks/domain/usecases/start_task.dart';
+
 import '../../../../core/dependency_injection/injection_container.dart';
 import '../../domain/usecases/create_task.dart';
 import '../../domain/usecases/delete_task.dart';
@@ -22,5 +24,6 @@ TaskProvider createTaskProvider() {
     watchTasksUseCase: sl<WatchTasks>(),
     watchAllTasksUseCase: sl<WatchAllTasks>(),
     watchAssignedTasksUseCase: sl<WatchAssignedTasks>(),
+    startTaskUseCase: sl<StartTask>(),
   );
 }

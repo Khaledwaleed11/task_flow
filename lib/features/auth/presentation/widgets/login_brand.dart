@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 
 class LoginBrand extends StatelessWidget {
   const LoginBrand({super.key});
